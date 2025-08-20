@@ -1,28 +1,27 @@
 package com.storage.passwords
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import com.storage.passwords.presentation.PasswordsScreen
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.storage.passwords.presentation.menu.navigation.NavigationApplication
+import com.storage.passwords.presentation.settings.SettingsViewModel
+import com.storage.passwords.theme.PasswordsTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            PasswordsScreen()
-        }
+
+    val settingViewModel = koinViewModel<SettingsViewModel>()
+    val currentTheme by settingViewModel.state.collectAsStateWithLifecycle()
+    PasswordsTheme(currentTheme.currentTheme) {
+        NavigationApplication(settingViewModel)
     }
+
 }
+
+
+

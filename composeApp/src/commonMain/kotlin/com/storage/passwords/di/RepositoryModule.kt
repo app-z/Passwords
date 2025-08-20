@@ -1,4 +1,4 @@
-package com.spacex.di
+package com.storage.passwords.di
 
 import com.storage.passwords.database.AppDatabase
 import com.storage.passwords.repository.LocalRepository
@@ -11,6 +11,6 @@ val repositoryModule = module {
     }
 
     single {
-        NetworkRepository(get())
+        NetworkRepository(get(), get())
     }
 }

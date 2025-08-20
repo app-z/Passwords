@@ -1,11 +1,10 @@
-package com.spacex.di
+package com.storage.passwords.di
 
 import androidx.room.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.storage.passwords.database.AppDatabase
 import com.storage.passwords.database.getDatabaseBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
+import com.storage.passwords.repository.DispatchersRepository
 import org.koin.dsl.module
 
 val databaseModule = module {
@@ -23,7 +22,7 @@ fun getRoomDatabase(
 ): AppDatabase {
     return builder
         .setDriver(BundledSQLiteDriver())
-        .setQueryCoroutineContext(Dispatchers.IO)
+        .setQueryCoroutineContext(DispatchersRepository.io())
         .fallbackToDestructiveMigration(
             dropAllTables = true
         )

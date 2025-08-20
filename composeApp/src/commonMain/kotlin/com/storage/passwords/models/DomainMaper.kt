@@ -8,7 +8,13 @@ fun PasswordsResult.mapToDomain() = PasswordItem(
     note = note,
     datetime = dateUtc ?: "No Date"
 //val saggastion: String = "",
-//val note: String = "",
+)
+
+fun PasswordItem.mapToRequest() = PasswordsRequest(
+    id = id,
+    name = name,
+    password = password,
+    note = note
 )
 
 fun PasswordItem.mapToEntity() = PasswordsEntity(
@@ -17,4 +23,12 @@ fun PasswordItem.mapToEntity() = PasswordsEntity(
     note = note,
     password = password,
     dateUtc = datetime
+)
+
+fun PasswordsEntity.mapToDomain() = PasswordItem(
+    id = id,
+    name = name,
+    note = note,
+    password = password,
+    datetime = dateUtc ?: "No Date"
 )

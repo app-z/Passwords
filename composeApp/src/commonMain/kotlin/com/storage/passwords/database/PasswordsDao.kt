@@ -1,9 +1,11 @@
 package com.storage.passwords.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.storage.passwords.models.PasswordsEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -22,12 +24,19 @@ interface PasswordsDao {
     @Query("SELECT COUNT(*) as count FROM Passwords")
     suspend fun count(): Int
 
+    @Query("SELECT id FROM Passwords ORDER BY id DESC")
+    suspend fun getMaxId(): String
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllPasswords(passwords: List<PasswordsEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-   suspend fun insertRocket(password: PasswordsEntity)
+   suspend fun insertPassword(password: PasswordsEntity)
 
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun updatePassword(password: PasswordsEntity)
+
+    @Delete
+    suspend fun deletePassword(password: PasswordsEntity)
 
 }

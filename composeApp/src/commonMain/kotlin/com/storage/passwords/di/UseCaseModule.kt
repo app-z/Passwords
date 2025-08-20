@@ -1,0 +1,13 @@
+package com.storage.passwords.di
+
+import com.storage.passwords.usecase.LoadFromDataBaseUseCase
+import com.storage.passwords.usecase.LoadFromInternetUseCase
+import com.storage.passwords.usecase.SendRequestToServerUseCase
+import org.koin.dsl.module
+
+val useCaseModule = module {
+    single { LoadFromInternetUseCase(get(), get()) }
+    single { LoadFromDataBaseUseCase(get()) }
+    single { SendRequestToServerUseCase(get()) }
+
+}

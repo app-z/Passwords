@@ -1,6 +1,7 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.*
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,6 +11,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -69,7 +71,7 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network)
             implementation(libs.navigation.compose)
-            implementation(libs.screen.size)
+//            implementation(libs.screen.size)
 
 
 
@@ -78,6 +80,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.composeVM)
             implementation(libs.ktor.logging)
+            implementation("org.jetbrains.compose.ui:ui-backhandler:1.8.2")
 
         }
 
@@ -130,3 +133,23 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
+// BuildConfig
+buildkonfig {
+    packageName = "com.storage.passwords"
+
+    val localProperties =
+        Properties().apply {
+            val propsFile = rootProject.file("local.properties")
+            if (propsFile.exists()) {
+                load(propsFile.inputStream())
+            }
+        }
+
+    defaultConfigs {
+        buildConfigField(
+            FieldSpec.Type.BOOLEAN,
+            "Is_Debug_Server",
+            localProperties["Is_Debug_Server"]?.toString(),
+        )
+    }
+}

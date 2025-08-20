@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.3"
+agp = "8.11.1"
 android-compileSdk = "36"
 android-minSdk = "26"
 android-targetSdk = "36"
@@ -20,13 +20,17 @@ koin = "4.0.2"
 
 coilVersion = "3.3.0"
 
-navigationCompose = "2.8.0-alpha13"
+navigationCompose = "2.9.0-beta05"
 size = "0.5.0"
 androidx-data-store = "1.1.7"
 
 ksp = "2.2.0-2.0.2"
 androidx-room = "2.7.2"
 sqlite = "2.5.2"
+
+# BuildConfig
+buildkonfig = "0.17.1"
+
 
 
 [libraries]
@@ -94,6 +98,9 @@ ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+# BuildConfig
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
 
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
