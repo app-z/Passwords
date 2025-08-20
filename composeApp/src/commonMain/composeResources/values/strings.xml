@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Passwords Informer</string>
+
+    <string name="home">Home</string>
+    <string name="passwords">Passwords</string>
+    <string name="login">Login</string>
+    <string name="update_complete">Update complete</string>
+
+
+    <string name="error_unexpected_message">Unexpected error occurred. We are working on it.</string>
+    <string name="error_client_unexpected_message">Something technically is wrong. We are working on it.</string>
+    <string name="error_server_unexpected_message">Oops! Something went wrong on the server. We are working on it.</string>
+    <string name="error_timeout_message">Looks like the server is taking to long to respond, this can be caused by either poor connectivity or an error with our servers. Please try again in a while</string>
+    <string name="error_network">Oops! Something went wrong on the server. We are working on it.</string>
+    <string name="no_results_found">No results found!</string>
+
+    <string name="title_passwords">Passwords</string>
+
+    <string name="network_error_description">A network error occurred. Check your connection or try again</string>
+    <string name="network_error_title">Oh no!</string>
+    <string name="network_error_retry_button_text">Try again</string>
+
+    <string name="dark_mode">Dark Mode</string>
+    <string name="light_mode">Light Mode</string>
+    <string name="system_default">System Default</string>
+
+    <string name="retry">Retry</string>
+    <string name="no_data">No data</string>
+</resources>
