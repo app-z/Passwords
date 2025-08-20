@@ -19,3 +19,34 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Server.
   platform-specific folders here too.
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+
+
+Netty server setup:
+
+const val BASE_URL = "http://192.168.1.40:8080"
+
+
+
+ios plist file for Netty Server:
+
+<pre>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>CADisableMinimumFrameDurationOnPhone</key>
+        <true/>
+        <key>NSAppTransportSecurity</key>
+        <dict>
+            <key>NSExceptionDomains</key>
+            <dict>
+                <key>localhost</key>
+                <dict>
+                    <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                    <true/>
+                </dict>
+            </dict>
+        </dict>
+    </dict>
+</plist>
+</pre>
