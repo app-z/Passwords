@@ -1,4 +1,4 @@
-package com.storage.passwords.presentation
+package com.storage.passwords.presentation.passwords
 
 import com.storage.passwords.models.PasswordItem
 

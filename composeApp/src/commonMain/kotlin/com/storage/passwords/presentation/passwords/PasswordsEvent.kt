@@ -1,4 +1,4 @@
-package com.storage.passwords.presentation
+package com.storage.passwords.presentation.passwords
 
 sealed interface PasswordsEvent {
     data object LoadPasswords : PasswordsEvent

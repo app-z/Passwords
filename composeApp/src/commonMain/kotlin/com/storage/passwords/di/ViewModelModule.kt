@@ -1,6 +1,6 @@
 package com.storage.passwords.di
 
-import com.storage.passwords.presentation.PasswordsViewModel
+import com.storage.passwords.presentation.passwords.PasswordsViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 

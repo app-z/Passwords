@@ -1,4 +1,4 @@
-package com.storage.passwords.presentation
+package com.storage.passwords.presentation.passwords
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.storage.passwords.models.PasswordItem
+import com.storage.passwords.presentation.shimmerEffect
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -142,7 +143,7 @@ fun PasswordListShimmer() {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(10) {
+        items(5) {
             PasswordItemShimmer()
         }
     }

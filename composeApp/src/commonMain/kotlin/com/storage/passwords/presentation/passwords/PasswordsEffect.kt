@@ -1,7 +1,6 @@
-package com.storage.passwords.presentation
+package com.storage.passwords.presentation.passwords
 
 import com.spacex.utils.UiText
-import org.koin.core.logger.MESSAGE
 
 sealed interface PasswordsEffect {
     data object Loading: PasswordsEffect

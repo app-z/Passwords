@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.storage.passwords.presentation.PasswordsScreen
+import com.storage.passwords.presentation.passwords.PasswordsScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
