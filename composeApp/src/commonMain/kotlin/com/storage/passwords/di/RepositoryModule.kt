@@ -11,6 +11,6 @@ val repositoryModule = module {
     }
 
     single {
-        NetworkRepository(get())
+        NetworkRepository(get(), get())
     }
 }

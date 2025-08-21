@@ -1,5 +1,7 @@
 package com.storage.passwords.di
 
+import com.storage.passwords.BuildKonfig
+import com.storage.passwords.repository.ConfigRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -14,15 +16,11 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
-// const val BASE_URL = "https://0.0.0.0:8080"
-
-const val BASE_URL = "http://192.168.1.40:8080"
-
 val networkModule = module {
     single {
         HttpClient {
             defaultRequest {
-                url(BASE_URL)
+                url(ConfigRepository().getBaseUrl())
                 contentType(ContentType.Application.Json)
             }
             install(HttpTimeout) {

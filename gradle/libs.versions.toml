@@ -28,6 +28,10 @@ ksp = "2.2.0-2.0.2"
 androidx-room = "2.7.2"
 sqlite = "2.5.2"
 
+# BuildConfig
+buildkonfig = "0.17.1"
+
+
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -94,6 +98,9 @@ ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+# BuildConfig
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
 
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

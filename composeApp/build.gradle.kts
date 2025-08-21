@@ -1,6 +1,7 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.*
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,6 +11,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -130,3 +132,23 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
+// BuildConfig
+buildkonfig {
+    packageName = "com.storage.passwords"
+
+    val localProperties =
+        Properties().apply {
+            val propsFile = rootProject.file("local.properties")
+            if (propsFile.exists()) {
+                load(propsFile.inputStream())
+            }
+        }
+
+    defaultConfigs {
+        buildConfigField(
+            FieldSpec.Type.BOOLEAN,
+            "Is_Debug_Server",
+            localProperties["Is_Debug_Server"]?.toString(),
+        )
+    }
+}

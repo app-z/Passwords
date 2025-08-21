@@ -26,6 +26,10 @@ Netty server setup:
 const val BASE_URL = "http://192.168.1.40:8080"
 
 
+Android Manifest.xml for Netty Server:
+
+android:usesCleartextTraffic="true"
+
 
 ios plist file for Netty Server:
 
