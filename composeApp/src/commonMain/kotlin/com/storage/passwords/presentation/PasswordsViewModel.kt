@@ -2,6 +2,7 @@ package com.storage.passwords.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.spacex.utils.UiText
 import com.storage.passwords.models.mapToDomain
 import com.storage.passwords.models.mapToEntity
 import com.storage.passwords.repository.LocalRepository
@@ -10,10 +11,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onErrorResume
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import passwords.composeapp.generated.resources.Res
+import passwords.composeapp.generated.resources.error_database
 
 class PasswordsViewModel(
     val localRepository: LocalRepository,
@@ -43,7 +48,7 @@ class PasswordsViewModel(
 
             PasswordsEvent.LoadPasswordsFromNetwork -> {
                 viewModelScope.launch {
-                   loadFromInternetAndPutToDatabase()
+                    loadFromInternetAndPutToDatabase()
                 }
             }
         }
@@ -67,6 +72,9 @@ class PasswordsViewModel(
     }
 
     private suspend fun loadFromInternetAndPutToDatabase() {
+
+        _effect.emit(PasswordsEffect.Loading)
+
         val passwords = networkRepository.getData(0)
         if (passwords.isSuccess) {
             passwords.map { passwordsResults ->
@@ -83,16 +91,25 @@ class PasswordsViewModel(
                         passwordItem.mapToEntity()
                     }
                 )
-                _effect.emit(PasswordsEffect.LoadSuccess)
             }
+            _effect.emit(PasswordsEffect.LoadSuccess)
         } else {
             errorState(passwords.exceptionOrNull()?.message)
         }
     }
 
     private suspend fun loadDataFromDataBaseOrError() {
+        _effect.emit(PasswordsEffect.Loading)
+
         localRepository
             .loadData()
+            .catch {
+                _effect.emit(
+                    PasswordsEffect.LoadError(
+                        UiText.StringResource(Res.string.error_database)
+                    )
+                )
+            }
             .collect { passwordItemsEntryList ->
                 _state.update {
                     it.copy(passwordItems = passwordItemsEntryList.map { passwordsEntities ->
@@ -100,8 +117,8 @@ class PasswordsViewModel(
                     }
                     )
                 }
+                _effect.emit(PasswordsEffect.LoadSuccess)
             }
-        _effect.emit(PasswordsEffect.LoadSuccess)
     }
 
 
@@ -111,7 +128,13 @@ class PasswordsViewModel(
 
     fun errorState(error: String?) {
         viewModelScope.launch {
-            _effect.emit(PasswordsEffect.LoadError(error ?: "Unknown error"))
+            _effect.emit(
+                PasswordsEffect.LoadError(
+                    UiText.StaticString(
+                        error ?: "Unknown error"
+                    )
+                )
+            )
         }
     }
 

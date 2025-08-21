@@ -1,5 +1,6 @@
 package com.storage.passwords.presentation
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,8 +29,8 @@ fun PasswordsScreen(
 
     val localLifecycleOwner = LocalLifecycleOwner.current
 
-    var successMessage by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    var isShimmerListStart by remember { mutableStateOf(false) }
 
     val effect = viewModel.effect
         .flowWithLifecycle(
@@ -41,19 +42,20 @@ fun PasswordsScreen(
         effect.collect {
             when (it) {
                 is PasswordsEffect.LoadError -> {
-                    errorMessage = it.message
+                    isShimmerListStart = false
+                    errorMessage = it.message.asStringForSuspend()
+                }
+
+                PasswordsEffect.Loading -> {
+                    isShimmerListStart = true
                 }
 
                 PasswordsEffect.LoadSuccess -> {
+                    isShimmerListStart = false
                     errorMessage = ""
-                    successMessage = true
                 }
             }
         }
-    }
-
-    if (successMessage) {
-//        Text("LoadSuccess")
     }
 
     if (errorMessage.isNotEmpty()) {
@@ -87,13 +89,21 @@ fun PasswordsScreen(
         }
 
         else -> {
-
-            PasswordsListScreen(
-                state.passwordItems,
-                {
-                    viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
-                    println(it)
-                })
+            Crossfade(
+                targetState = isShimmerListStart,
+                label = "Icon Crossfade"
+            ) { isShimmerListStart ->
+                if (isShimmerListStart) {
+                    PasswordListShimmer()
+                } else {
+                    PasswordsListScreen(
+                        state.passwordItems,
+                        {
+                            viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
+                            println(it)
+                        })
+                }
+            }
         }
     }
 
@@ -112,6 +122,29 @@ fun ReloadFromNetwork(onClick: () -> Unit) {
             onClick.invoke()
         }) {
         Text("Reload from Internet")
+    }
+}
+
+@Composable
+fun PasswordItemShimmer() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shimmerEffect()
+            .padding(16.dp)
+    ) {
+        Text("Password...")
+    }
+}
+
+@Composable
+fun PasswordListShimmer() {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(10) {
+            PasswordItemShimmer()
+        }
     }
 }
 
@@ -142,12 +175,13 @@ fun PasswordsListScreen(
 
 @Composable
 fun PasswordRow(
+    modifier: Modifier = Modifier,
     passwordItem: PasswordItem,
     onClick: (passwordItem: PasswordItem) -> Unit
 ) {
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
             .clickable { onClick.invoke(passwordItem) }
@@ -162,6 +196,7 @@ fun PasswordRow(
 @Preview
 fun PasswordRowPreview() {
     PasswordRow(
+        modifier = Modifier.shimmerEffect(),
         PasswordItem(
             id = "100",
             name = "Email",
@@ -172,4 +207,10 @@ fun PasswordRowPreview() {
         ),
         {}
     )
+}
+
+@Preview
+@Composable
+fun PasswordListShimmerPreview() {
+    PasswordListShimmer()
 }

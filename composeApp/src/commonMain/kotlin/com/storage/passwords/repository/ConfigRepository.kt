@@ -4,7 +4,7 @@ import com.storage.passwords.BuildKonfig
 
 class ConfigRepository {
 
-    val isDebugBuild = BuildKonfig.Is_Debug_Server
+    private val isDebugBuild = BuildKonfig.Is_Debug_Server
 
     fun getBaseUrl(): String {
         return if (isDebugBuild)
@@ -14,8 +14,8 @@ class ConfigRepository {
     }
 
     companion object Companion {
-        const val BASE_URL_RELEASE = "https://0.0.0.0:8080"
-        const val BASE_URL_DEBUG = "http://192.168.1.40:8080"
+        private const val BASE_URL_RELEASE = "https://0.0.0.0:8080"
+        private const val BASE_URL_DEBUG = "http://192.168.1.40:8080"
     }
 
 }
