@@ -1,4 +1,4 @@
-package com.spacex.di
+package com.storage.passwords.di
 
 import com.storage.passwords.presentation.PasswordsViewModel
 import org.koin.core.module.dsl.viewModelOf

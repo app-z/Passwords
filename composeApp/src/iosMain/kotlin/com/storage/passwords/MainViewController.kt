@@ -1,7 +1,7 @@
 package com.storage.passwords
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.spacex.di.initKoin
+import com.storage.passwords.di.initKoin
 
 fun MainViewController() = ComposeUIViewController(
     configure = {

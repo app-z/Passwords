@@ -2,25 +2,31 @@ package com.storage.passwords.repository
 
 import com.storage.passwords.database.PasswordsDao
 import com.storage.passwords.models.PasswordsEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class LocalRepository(
     private val passwordsDao: PasswordsDao
 ) {
 
-    fun loadData(): Flow<List<PasswordsEntity>> =
+    suspend fun loadData(): Flow<List<PasswordsEntity>> = withContext(Dispatchers.IO) {
         passwordsDao.getAllPasswords()
+    }
 
-    fun loadFilteredData(filter: String): Flow<List<PasswordsEntity>> =
+    suspend fun loadFilteredData(filter: String): Flow<List<PasswordsEntity>> = withContext(Dispatchers.IO) {
         passwordsDao.getFilteredPasswords(filter)
+    }
 
     suspend fun insertPasswords(list: List<PasswordsEntity>) =
         passwordsDao.insertAllPasswords(list)
 
-    suspend fun getCount(): Int = passwordsDao.count()
+    suspend fun getCount(): Int = withContext(Dispatchers.IO) { passwordsDao.count() }
 
     suspend fun getPasswords(id: String): PasswordsEntity {
-        val passwords = passwordsDao.getPasswords(id)
-        return passwords
+        return withContext(Dispatchers.IO) {
+            passwordsDao.getPasswords(id)
+        }
     }
 }

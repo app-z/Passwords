@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,6 +36,7 @@ class PasswordsViewModel(
             is PasswordsEvent.LoadPasswords -> {
                 loadPasswords()
             }
+
             is PasswordsEvent.NavigateToDetail -> { id: String ->
                 navigateToDetail(id)
             }
@@ -59,8 +61,8 @@ class PasswordsViewModel(
                                 )
                             }
                             localRepository.insertPasswords(
-                                passwordItems.map {
-                                    passwordItem -> passwordItem.mapToEntity()
+                                passwordItems.map { passwordItem ->
+                                    passwordItem.mapToEntity()
                                 }
                             )
                             _effect.emit(PasswordsEffect.LoadSuccess)
@@ -72,9 +74,25 @@ class PasswordsViewModel(
                     errorState(ex.message)
                 }
 
+            } else {
+                loadDataFromDataBaseOrError()
             }
         }
     }
+
+    private suspend fun loadDataFromDataBaseOrError() {
+        localRepository
+            .loadData()
+            .collect { passwordItemsEntryList ->
+                _state.update {
+                    it.copy(passwordItems = passwordItemsEntryList.map { passwordsEntities ->
+                        passwordsEntities.mapToDomain()
+                    }
+                    )
+                }
+            }
+    }
+
 
     private fun navigateToDetail(id: String) {
 

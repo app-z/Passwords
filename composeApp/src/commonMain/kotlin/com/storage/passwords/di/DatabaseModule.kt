@@ -1,4 +1,4 @@
-package com.spacex.di
+package com.storage.passwords.di
 
 import androidx.room.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
