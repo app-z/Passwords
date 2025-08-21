@@ -10,8 +10,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.storage.passwords.models.PasswordItem
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -29,14 +31,21 @@ fun PasswordsScreen(
     var successMessage by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
+    val effect = viewModel.effect
+        .flowWithLifecycle(
+            localLifecycleOwner.lifecycle,
+            Lifecycle.State.STARTED
+        )
+
     LaunchedEffect(key1 = localLifecycleOwner) {
-        viewModel.effect.collect {
+        effect.collect {
             when (it) {
                 is PasswordsEffect.LoadError -> {
                     errorMessage = it.message
                 }
 
                 PasswordsEffect.LoadSuccess -> {
+                    errorMessage = ""
                     successMessage = true
                 }
             }
@@ -44,7 +53,7 @@ fun PasswordsScreen(
     }
 
     if (successMessage) {
-        Text("LoadSuccess")
+//        Text("LoadSuccess")
     }
 
     if (errorMessage.isNotEmpty()) {
@@ -55,9 +64,9 @@ fun PasswordsScreen(
     when {
 
         state.passwordItems.isEmpty() -> {
-            Box(
+            Column(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     modifier = Modifier
@@ -86,6 +95,23 @@ fun PasswordsScreen(
                     println(it)
                 })
         }
+    }
+
+    ReloadFromNetwork({
+        viewModel.handleEvent(PasswordsEvent.LoadPasswordsFromNetwork)
+    })
+}
+
+@Composable
+fun ReloadFromNetwork(onClick: () -> Unit) {
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+        onClick = {
+            onClick.invoke()
+        }) {
+        Text("Reload from Internet")
     }
 }
 

@@ -40,6 +40,12 @@ class PasswordsViewModel(
             is PasswordsEvent.NavigateToDetail -> { id: String ->
                 navigateToDetail(id)
             }
+
+            PasswordsEvent.LoadPasswordsFromNetwork -> {
+                viewModelScope.launch {
+                   loadFromInternetAndPutToDatabase()
+                }
+            }
         }
     }
 
@@ -49,27 +55,7 @@ class PasswordsViewModel(
         viewModelScope.launch {
             if (localRepository.getCount() == 0) {
                 try {
-                    val passwords = networkRepository.getData(0)
-                    if (passwords.isSuccess) {
-                        passwords.map { passwordsResults ->
-                            val passwordItems = passwordsResults.map { passwordResultItem ->
-                                passwordResultItem.mapToDomain()
-                            }
-                            _state.update {
-                                it.copy(
-                                    passwordItems = passwordItems
-                                )
-                            }
-                            localRepository.insertPasswords(
-                                passwordItems.map { passwordItem ->
-                                    passwordItem.mapToEntity()
-                                }
-                            )
-                            _effect.emit(PasswordsEffect.LoadSuccess)
-                        }
-                    } else {
-                        errorState(passwords.exceptionOrNull()?.message)
-                    }
+                    loadFromInternetAndPutToDatabase()
                 } catch (ex: Exception) {
                     errorState(ex.message)
                 }
@@ -77,6 +63,30 @@ class PasswordsViewModel(
             } else {
                 loadDataFromDataBaseOrError()
             }
+        }
+    }
+
+    private suspend fun loadFromInternetAndPutToDatabase() {
+        val passwords = networkRepository.getData(0)
+        if (passwords.isSuccess) {
+            passwords.map { passwordsResults ->
+                val passwordItems = passwordsResults.map { passwordResultItem ->
+                    passwordResultItem.mapToDomain()
+                }
+                _state.update {
+                    it.copy(
+                        passwordItems = passwordItems
+                    )
+                }
+                localRepository.insertPasswords(
+                    passwordItems.map { passwordItem ->
+                        passwordItem.mapToEntity()
+                    }
+                )
+                _effect.emit(PasswordsEffect.LoadSuccess)
+            }
+        } else {
+            errorState(passwords.exceptionOrNull()?.message)
         }
     }
 
@@ -91,6 +101,7 @@ class PasswordsViewModel(
                     )
                 }
             }
+        _effect.emit(PasswordsEffect.LoadSuccess)
     }
 
 

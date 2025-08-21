@@ -19,8 +19,9 @@ class LocalRepository(
         passwordsDao.getFilteredPasswords(filter)
     }
 
-    suspend fun insertPasswords(list: List<PasswordsEntity>) =
+    suspend fun insertPasswords(list: List<PasswordsEntity>) = withContext(Dispatchers.IO) {
         passwordsDao.insertAllPasswords(list)
+    }
 
     suspend fun getCount(): Int = withContext(Dispatchers.IO) { passwordsDao.count() }
 
