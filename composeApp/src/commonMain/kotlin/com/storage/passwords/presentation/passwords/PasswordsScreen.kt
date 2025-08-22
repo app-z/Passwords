@@ -1,11 +1,13 @@
 package com.storage.passwords.presentation.passwords
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +24,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PasswordsScreen(
-    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues,
     currentItem: (passsword_id: String) -> Unit,
 ) {
     val viewModel = koinViewModel<PasswordsViewModel>()
@@ -69,54 +71,64 @@ fun PasswordsScreen(
     }
 
 
-    when {
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primaryContainer)
+//            .safeContentPadding()
+//            .padding(paddingValues = paddingValues)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
 
-        state.passwordItems.isEmpty() -> {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    text = "Empty"
-                )
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    onClick = {
-                        viewModel.handleEvent(PasswordsEvent.LoadPasswords)
-                    }) {
-                    Text("Reload")
-                }
-            }
-        }
+        when {
 
-        else -> {
-            Crossfade(
-                targetState = isShimmerListStart,
-                label = "Icon Crossfade"
-            ) { isShimmerListStart ->
-                if (isShimmerListStart) {
-                    PasswordListShimmer()
-                } else {
-                    PasswordsListScreen(
-                        state.passwordItems,
-                        {
-                            viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
-                            println(it)
-                        }
+            state.passwordItems.isEmpty() -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        text = "Empty"
                     )
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        onClick = {
+                            viewModel.handleEvent(PasswordsEvent.LoadPasswords)
+                        }) {
+                        Text("Reload")
+                    }
+                }
+            }
+
+            else -> {
+                Crossfade(
+                    targetState = isShimmerListStart,
+                    label = "Icon Crossfade"
+                ) { isShimmerListStart ->
+                    if (isShimmerListStart) {
+                        PasswordListShimmer()
+                    } else {
+                        PasswordsListScreen(
+                            state.passwordItems,
+                            {
+                                viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
+                                println(it)
+                            }
+                        )
+                    }
                 }
             }
         }
-    }
 
-    ReloadFromNetwork({
-        viewModel.handleEvent(PasswordsEvent.LoadPasswordsFromNetwork)
-    })
+        ReloadFromNetwork({
+            viewModel.handleEvent(PasswordsEvent.LoadPasswordsFromNetwork)
+        })
+    }
 }
 
 @Composable
@@ -124,7 +136,7 @@ fun ReloadFromNetwork(onClick: () -> Unit) {
     Button(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp),
+            .padding(16.dp),
         onClick = {
             onClick.invoke()
         }) {

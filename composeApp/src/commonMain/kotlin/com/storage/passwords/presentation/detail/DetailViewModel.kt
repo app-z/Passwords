@@ -42,7 +42,7 @@ class DetailViewModel(
 
     fun loadDetail() {
 
-        viewModelScope.launch() {
+        viewModelScope.launch(coroutineExceptionHandler) {
             _effect.emit(DetailEffect.Loading)
 
             try {

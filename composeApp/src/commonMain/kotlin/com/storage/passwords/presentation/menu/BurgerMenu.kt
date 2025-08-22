@@ -14,16 +14,18 @@ import org.jetbrains.compose.resources.stringResource
 import passwords.composeapp.generated.resources.Res
 import passwords.composeapp.generated.resources.add_password
 import passwords.composeapp.generated.resources.edit_password
+import passwords.composeapp.generated.resources.home
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BurgerMenu(
     onAddItem: () -> Unit,
     onEditItem: () -> Unit,
-    content: @Composable (paddingValue: PaddingValues,
-        ) -> Unit
+    topBar: @Composable () -> Unit,
+    drawerState: DrawerState,
+    content: @Composable (paddingValue: PaddingValues) -> Unit
 ) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+//    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
@@ -54,20 +56,7 @@ fun BurgerMenu(
         }
     ) {
         Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("App Title") },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) drawerState.open() else drawerState.close()
-                            }
-                        }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Menu")
-                        }
-                    }
-                )
-            }
+            topBar = topBar
         ) { paddingValues ->
             // Main screen content
             content(paddingValues)
