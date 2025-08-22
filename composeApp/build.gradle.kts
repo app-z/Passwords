@@ -80,6 +80,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.composeVM)
             implementation(libs.ktor.logging)
+            implementation("org.jetbrains.compose.ui:ui-backhandler:1.8.2")
 
         }
 

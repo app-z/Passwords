@@ -1,11 +1,14 @@
 package com.storage.passwords.presentation.passwords
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,21 +20,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.presentation.shimmerEffect
+import com.storage.passwords.repository.DispatchersRepository
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PasswordsScreen(
-    modifier: Modifier = Modifier
+    paddingValues: PaddingValues,
+    snackbarHostState: SnackbarHostState,
+    currentItem: (passsword_id: String) -> Unit,
 ) {
     val viewModel = koinViewModel<PasswordsViewModel>()
-
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val localLifecycleOwner = LocalLifecycleOwner.current
 
     var errorMessage by remember { mutableStateOf("") }
     var isShimmerListStart by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
 
     val effect = viewModel.effect
         .flowWithLifecycle(
@@ -55,62 +63,79 @@ fun PasswordsScreen(
                     isShimmerListStart = false
                     errorMessage = ""
                 }
+
+                is PasswordsEffect.NavigateToDetail -> {
+                    currentItem.invoke(it.itemId)
+                }
             }
         }
     }
 
     if (errorMessage.isNotEmpty()) {
-        Text(errorMessage)
+        scope.launch (DispatchersRepository.DispatchersMain) {
+            snackbarHostState.showSnackbar(errorMessage)
+        }
     }
 
 
-    when {
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primaryContainer)
+//            .safeContentPadding()
+//            .padding(paddingValues = paddingValues)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
 
-        state.passwordItems.isEmpty() -> {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    text = "Empty"
-                )
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    onClick = {
-                        viewModel.handleEvent(PasswordsEvent.LoadPasswords)
-                    }) {
-                    Text("Reload")
+        when {
+
+            state.passwordItems.isEmpty() -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        text = "Empty"
+                    )
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        onClick = {
+                            viewModel.handleEvent(PasswordsEvent.LoadPasswords)
+                        }) {
+                        Text("Reload")
+                    }
+                }
+            }
+
+            else -> {
+                Crossfade(
+                    targetState = isShimmerListStart,
+                    label = "Icon Crossfade"
+                ) { isShimmerListStart ->
+                    if (isShimmerListStart) {
+                        PasswordListShimmer()
+                    } else {
+                        PasswordsListScreen(
+                            state.passwordItems,
+                            {
+                                viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
+                                println(it)
+                            }
+                        )
+                    }
                 }
             }
         }
 
-        else -> {
-            Crossfade(
-                targetState = isShimmerListStart,
-                label = "Icon Crossfade"
-            ) { isShimmerListStart ->
-                if (isShimmerListStart) {
-                    PasswordListShimmer()
-                } else {
-                    PasswordsListScreen(
-                        state.passwordItems,
-                        {
-                            viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
-                            println(it)
-                        })
-                }
-            }
-        }
+        ReloadFromNetwork({
+            viewModel.handleEvent(PasswordsEvent.LoadPasswordsFromNetwork)
+        })
     }
-
-    ReloadFromNetwork({
-        viewModel.handleEvent(PasswordsEvent.LoadPasswordsFromNetwork)
-    })
 }
 
 @Composable
@@ -118,7 +143,7 @@ fun ReloadFromNetwork(onClick: () -> Unit) {
     Button(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp),
+            .padding(16.dp),
         onClick = {
             onClick.invoke()
         }) {

@@ -3,8 +3,17 @@
 
     <string name="home">Home</string>
     <string name="passwords">Passwords</string>
-    <string name="login">Login</string>
+    <string name="Detail">Detail</string>
     <string name="update_complete">Update complete</string>
+
+    <string name="add_password">Add passwords</string>
+    <string name="edit_password">Edit passwords</string>
+    <string name="about">About</string>
+
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+
+    <string name="unknown_error">"Unknown error"</string>
 
 
     <string name="error_unexpected_message">Unexpected error occurred. We are working on it.</string>
