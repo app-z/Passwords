@@ -25,11 +25,11 @@ fun BurgerMenu(
     drawerState: DrawerState,
     content: @Composable (paddingValue: PaddingValues) -> Unit
 ) {
-//    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+        gesturesEnabled = false,
         drawerContent = {
             ModalDrawerSheet {
                 Text("Menu", modifier = Modifier.padding(16.dp))

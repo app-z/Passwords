@@ -1,6 +1,10 @@
 package com.storage.passwords.presentation.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,8 +21,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,11 +38,13 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import passwords.composeapp.generated.resources.Detail
 import passwords.composeapp.generated.resources.Res
+import kotlin.math.abs
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun DetailScreen(
+    onBackHandler: () -> Unit,
     paddingValues: PaddingValues,
     password_id: String,
     navController: NavHostController
@@ -70,20 +80,28 @@ fun DetailScreen(
         }
     }
 
-        Column(
-            modifier = Modifier
-                .background(Color.White)
-                .padding(16.dp)
+    BackHandler(enabled = true) {
+        println("BackHandler")
+        onBackHandler.invoke()
+    }
+
+    Column(
+        modifier = Modifier
+            .background(Color.White)
+            .padding(16.dp)
 //                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            DetailScreenImpl(state.passwordItem)
-        }
+            .fillMaxSize()
+    ) {
+        DetailScreenImpl(state.passwordItem)
+    }
+
+
 }
 
 @Composable
 fun DetailScreenImpl(
-    passwordItem: PasswordItem) {
+    passwordItem: PasswordItem
+) {
     Text(text = passwordItem.name)
     Text(text = passwordItem.password)
     Text(text = passwordItem.note)

@@ -84,6 +84,10 @@ fun App() {
                         ?.let { jsonId ->
                             val password_id = Json.decodeFromString<String>(jsonId)
                             DetailScreen(
+                                onBackHandler = {
+                                    navController.popBackStack()
+                                    currentRoute.value = Screen.Home.route
+                                },
                                 password_id = password_id,
                                 paddingValues = paddingValues,
                                 navController = navController
