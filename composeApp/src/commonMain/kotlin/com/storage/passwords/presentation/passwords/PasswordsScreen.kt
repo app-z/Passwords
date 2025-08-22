@@ -22,7 +22,8 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PasswordsScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    currentItem: (passsword_id: String) -> Unit,
 ) {
     val viewModel = koinViewModel<PasswordsViewModel>()
 
@@ -54,6 +55,10 @@ fun PasswordsScreen(
                 PasswordsEffect.LoadSuccess -> {
                     isShimmerListStart = false
                     errorMessage = ""
+                }
+
+                is PasswordsEffect.NavigateToDetail -> {
+                    currentItem.invoke(it.itemId)
                 }
             }
         }
@@ -102,7 +107,8 @@ fun PasswordsScreen(
                         {
                             viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
                             println(it)
-                        })
+                        }
+                    )
                 }
             }
         }

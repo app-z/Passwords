@@ -39,11 +39,11 @@ class PasswordsViewModel(
                 loadPasswords()
             }
 
-            is PasswordsEvent.NavigateToDetail -> { id: String ->
-                navigateToDetail(id)
+            is PasswordsEvent.NavigateToDetail -> {
+                navigateToDetail(event.itemId)
             }
 
-            PasswordsEvent.LoadPasswordsFromNetwork -> {
+            is PasswordsEvent.LoadPasswordsFromNetwork -> {
                 viewModelScope.launch {
                     loadFromInternetAndPutToDatabase()
                 }
@@ -120,7 +120,9 @@ class PasswordsViewModel(
 
 
     private fun navigateToDetail(id: String) {
-
+        viewModelScope.launch {
+            _effect.emit(PasswordsEffect.NavigateToDetail(id))
+        }
     }
 
     fun errorState(error: String?) {

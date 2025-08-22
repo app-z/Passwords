@@ -6,6 +6,10 @@
     <string name="login">Login</string>
     <string name="update_complete">Update complete</string>
 
+    <string name="add_password">Add passwords</string>
+    <string name="edit_password">Edit passwords</string>
+
+
 
     <string name="error_unexpected_message">Unexpected error occurred. We are working on it.</string>
     <string name="error_client_unexpected_message">Something technically is wrong. We are working on it.</string>
