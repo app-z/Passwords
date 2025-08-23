@@ -11,14 +11,15 @@ import com.storage.passwords.presentation.menu.navigation.NavigationViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import passwords.composeapp.generated.resources.Res
+import passwords.composeapp.generated.resources.about
 import passwords.composeapp.generated.resources.add_password
 import passwords.composeapp.generated.resources.edit_password
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BurgerMenu(
+    onAboutItem: () -> Unit,
     onAddItem: () -> Unit,
-    onEditItem: () -> Unit,
     drawerState: DrawerState,
     appTopBarContent: @Composable () -> Unit,
     content: @Composable (paddingValue: PaddingValues) -> Unit
@@ -35,6 +36,16 @@ fun BurgerMenu(
                 HorizontalDivider()
                 NavigationDrawerItem(
                     label = {
+                        Text(text = stringResource(Res.string.about))
+                    },
+                    selected = false,
+                    onClick = {
+                        onAboutItem.invoke()
+                        scope.launch { drawerState.close() }
+                    }
+                )
+                NavigationDrawerItem(
+                    label = {
                         Text(text = stringResource(Res.string.add_password))
                     },
                     selected = false,
@@ -43,23 +54,11 @@ fun BurgerMenu(
                         scope.launch { drawerState.close() }
                     }
                 )
-                NavigationDrawerItem(
-                    label = {
-                        Text(text = stringResource(Res.string.edit_password))
-                    },
-                    selected = false,
-                    onClick = {
-                        onEditItem.invoke()
-                        scope.launch {
-                            drawerState.close()
-                        }
-                    }
-                )
             }
         }
     ) {
         Scaffold(
-            topBar = appTopBarContent //{ viewModel.ApplicationTopBar(drawerState = drawerState) }
+            topBar = appTopBarContent
         ) { paddingValues ->
             // Main screen content
             content(paddingValues)

@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.storage.passwords.presentation.about.AboutScreen
 import com.storage.passwords.presentation.detail.DetailScreen
 import com.storage.passwords.presentation.menu.BurgerMenu
 import com.storage.passwords.presentation.passwords.PasswordsScreen
@@ -32,12 +33,8 @@ fun NavigationApplication() {
         onAddItem = {
             navigateViewModel.navigateToRoute(Screen.Detail.route)
         },
-        onEditItem = {
-            navController.currentBackStackEntry?.savedStateHandle?.apply {
-                val jsonFalconInfo = Json.encodeToString("1")
-                set("password_id", jsonFalconInfo)
-            }
-            navigateViewModel.navigateToRoute(Screen.Detail.route)
+        onAboutItem = {
+            navigateViewModel.navigateToRoute(Screen.About.route)
         },
         appTopBarContent = {
             ApplicationTopBar(
@@ -63,6 +60,14 @@ fun NavigationApplication() {
                         navigateViewModel.navigateToRoute(Screen.Detail.route)
                     }
 
+                )
+            }
+            composable(Screen.About.route) {
+                AboutScreen(
+                    paddingValues = paddingValues,
+                    onStartClick = {
+                        navigateViewModel.popBackStackToHome()
+                    }
                 )
             }
             composable(
@@ -97,6 +102,7 @@ fun ApplicationTopBar(
 
     when (route.value) {
         Screen.Home.route -> Screen.Home.MainAppBar(drawerState)
+        Screen.About.route -> {}
         Screen.Detail.route -> Screen.Detail.DetailAppBar(
             onClickBack = {
                 navigateViewModel.popBackStackToHome()

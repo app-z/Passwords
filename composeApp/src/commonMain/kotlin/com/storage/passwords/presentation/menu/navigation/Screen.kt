@@ -42,7 +42,7 @@ sealed class Screen(val route: String) {
 
     }
 
-    object Detail : Screen("profile") {
+    object Detail : Screen("detail") {
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun DetailAppBar(onClickBack: () -> Unit) {
@@ -57,6 +57,12 @@ sealed class Screen(val route: String) {
                 }
             )
         }
+    }
+
+    object About: Screen("About") {
+//        fun about(onClickStart: () -> Unit) {
+//            onClickStart.invoke()
+//        }
     }
 
     object Settings : Screen("settings")

@@ -54,3 +54,11 @@ ios plist file for Netty Server:
     </dict>
 </plist>
 </pre>
+
+
+For support gesture on Navigation Drawer Menu
+
+    BackHandler(enabled = true) {
+        println("BackHandler")
+        onStartClick.invoke()
+    }
