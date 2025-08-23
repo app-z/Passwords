@@ -18,7 +18,14 @@ import kotlinx.serialization.json.Json
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import com.storage.passwords.utils.Const.PASSWORD_ID_PARAM
+import passwords.composeapp.generated.resources.Res
 
+import io.github.kdroidfilter.knotify.builder.ExperimentalNotificationsApi
+import io.github.kdroidfilter.knotify.builder.notification
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import passwords.composeapp.generated.resources.ic_notification_add
+
+@OptIn(ExperimentalResourceApi::class, ExperimentalNotificationsApi::class)
 @Composable
 fun NavigationApplication() {
 
@@ -28,6 +35,33 @@ fun NavigationApplication() {
     val navigateViewModel = koinViewModel<NavigationViewModel>(
         parameters = { parametersOf(navController) }
     )
+
+    // Create a notification
+    val myNotification = notification(
+        title = "Notification from Screen 1",
+        message = "This is a test notification from Screen 1",
+        largeIcon = Res.getUri("drawable/ic_notification_add.png"),
+        smallIcon = Res.getUri("drawable/ic_notification_add.png"),
+        onActivated = {
+            println( "Notification 1 activated")
+        },
+        onDismissed = {
+                reason ->
+            println("Notification 1 dismissed: $reason")
+        },
+        onFailed = {
+            println( "Notification 1 failed")
+        }
+    ) {
+        button(title = "Show Message from Button 1") {
+            println("Button 1 from Screen 1 clicked")
+//            onShowMessage("Button 1 clicked from Screen 1's notification")
+        }
+        button(title = "Hide Message from Button 2") {
+            println("Button 2 from Screen 1 clicked")
+//            onShowMessage(null)
+        }
+    }
 
     BurgerMenu(
         drawerState = drawerState,
@@ -89,6 +123,7 @@ fun NavigationApplication() {
                             paddingValues = paddingValues,
                             onSaveClick = {
                                 navigateViewModel.popBackStackToHome()
+                                myNotification.send()
                             },
                             navController = navController
                         )

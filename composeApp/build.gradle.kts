@@ -82,6 +82,8 @@ kotlin {
             implementation(libs.ktor.logging)
             implementation("org.jetbrains.compose.ui:ui-backhandler:1.8.2")
 
+            implementation("io.github.kdroidfilter:knotify:0.3.0")
+            implementation("io.github.kdroidfilter:platformtools.core:0.4.0")
         }
 
         iosMain.dependencies {
