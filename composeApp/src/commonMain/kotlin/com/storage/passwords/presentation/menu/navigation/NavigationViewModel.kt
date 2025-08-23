@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.storage.passwords.utils.Const.PASSWORD_ID_PARAM
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -24,8 +25,11 @@ class NavigationViewModel(val navController: NavController) : ViewModel() {
         }
     }
 
-    fun popBackStackToHome() {
+    fun popBackStackToHome(clearKey: String = PASSWORD_ID_PARAM) {
         viewModelScope.launch {
+            navController.previousBackStackEntry?.savedStateHandle?.let { savedStateHandle ->
+                savedStateHandle.remove<String>(clearKey)
+            }
             navController.popBackStack()
             _currentRoute.emit(Screen.Home.route)
         }

@@ -10,6 +10,7 @@
     <string name="edit_password">Edit passwords</string>
     <string name="about">About</string>
 
+    <string name="save">Save</string>
 
 
     <string name="error_unexpected_message">Unexpected error occurred. We are working on it.</string>

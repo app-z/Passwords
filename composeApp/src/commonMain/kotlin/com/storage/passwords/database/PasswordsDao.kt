@@ -22,12 +22,14 @@ interface PasswordsDao {
     @Query("SELECT COUNT(*) as count FROM Passwords")
     suspend fun count(): Int
 
+    @Query("SELECT id FROM Passwords ORDER BY id DESC")
+    suspend fun getMaxId(): String
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllPasswords(passwords: List<PasswordsEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-   suspend fun insertRocket(password: PasswordsEntity)
+   suspend fun insertPassword(password: PasswordsEntity)
 
 
 }

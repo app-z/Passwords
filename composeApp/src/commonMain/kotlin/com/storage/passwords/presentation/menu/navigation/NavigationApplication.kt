@@ -17,6 +17,7 @@ import com.storage.passwords.presentation.passwords.PasswordsScreen
 import kotlinx.serialization.json.Json
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import com.storage.passwords.utils.Const.PASSWORD_ID_PARAM
 
 @Composable
 fun NavigationApplication() {
@@ -31,6 +32,10 @@ fun NavigationApplication() {
     BurgerMenu(
         drawerState = drawerState,
         onAddItem = {
+            navController.currentBackStackEntry?.savedStateHandle?.apply {
+                val jsonFalconInfo = Json.encodeToString("-1")
+                set(PASSWORD_ID_PARAM, jsonFalconInfo)
+            }
             navigateViewModel.navigateToRoute(Screen.Detail.route)
         },
         onAboutItem = {
@@ -55,7 +60,7 @@ fun NavigationApplication() {
                     currentItem = { password_id ->
                         navController.currentBackStackEntry?.savedStateHandle?.apply {
                             val jsonFalconInfo = Json.encodeToString(password_id)
-                            set("password_id", jsonFalconInfo)
+                            set(PASSWORD_ID_PARAM, jsonFalconInfo)
                         }
                         navigateViewModel.navigateToRoute(Screen.Detail.route)
                     }
@@ -73,7 +78,7 @@ fun NavigationApplication() {
             composable(
                 route = Screen.Detail.route,
             ) {
-                navController.previousBackStackEntry?.savedStateHandle?.get<String>("password_id")
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(PASSWORD_ID_PARAM)
                     ?.let { jsonId ->
                         val password_id = Json.decodeFromString<String>(jsonId)
                         DetailScreen(
@@ -82,6 +87,9 @@ fun NavigationApplication() {
                             },
                             password_id = password_id,
                             paddingValues = paddingValues,
+                            onSaveClick = {
+                                navigateViewModel.popBackStackToHome()
+                            },
                             navController = navController
                         )
                     }

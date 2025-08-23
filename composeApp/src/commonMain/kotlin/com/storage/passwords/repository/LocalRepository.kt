@@ -23,7 +23,13 @@ class LocalRepository(
         passwordsDao.insertAllPasswords(list)
     }
 
+    suspend fun insertPassword(password: PasswordsEntity) = withContext(Dispatchers.IO) {
+        passwordsDao.insertPassword(password)
+    }
+
     suspend fun getCount(): Int = withContext(Dispatchers.IO) { passwordsDao.count() }
+
+    suspend fun getMaxId(): String = withContext(Dispatchers.IO) { passwordsDao.getMaxId() }
 
     suspend fun getPasswords(id: String): PasswordsEntity {
         return withContext(Dispatchers.IO) {

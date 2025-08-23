@@ -52,18 +52,17 @@ sealed class Screen(val route: String) {
                     IconButton(onClick = {
                         onClickBack.invoke()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "ArrowBack"
+                        )
                     }
                 }
             )
         }
     }
 
-    object About: Screen("About") {
-//        fun about(onClickStart: () -> Unit) {
-//            onClickStart.invoke()
-//        }
-    }
+    object About: Screen("About")
 
     object Settings : Screen("settings")
 }
