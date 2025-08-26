@@ -1,6 +1,7 @@
 package com.storage.passwords.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -35,5 +36,7 @@ interface PasswordsDao {
     @Update(onConflict = OnConflictStrategy.IGNORE)
     suspend fun updatePassword(password: PasswordsEntity)
 
+    @Delete
+    suspend fun deletePassword(password: PasswordsEntity)
 
 }

@@ -6,7 +6,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
@@ -14,13 +16,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.storage.passwords.models.PasswordItem
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import passwords.composeapp.generated.resources.Res
+import passwords.composeapp.generated.resources.delete
 import passwords.composeapp.generated.resources.save
 
 
@@ -31,7 +33,7 @@ fun DetailScreen(
     paddingValues: PaddingValues,
     password_id: String,
     onSaveClick: (PasswordItem) -> Unit,
-    navController: NavHostController
+    onDeleteClick: (PasswordItem) -> Unit,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -82,25 +84,38 @@ fun DetailScreen(
             passwordInput = passwordItem.password,
             noteInput = passwordItem.note,
             onChangeName = {
-                viewModel.handleEvent(DetailEvent.UpdatePasswordDetail(
-                    passwordItem.copy(name = it)
-                ))
+                viewModel.handleEvent(
+                    DetailEvent.UpdatePasswordDetail(
+                        passwordItem.copy(name = it)
+                    )
+                )
             },
             onChangePassword = {
-                viewModel.handleEvent(DetailEvent.UpdatePasswordDetail(
-                    passwordItem.copy(password = it)
-                ))
+                viewModel.handleEvent(
+                    DetailEvent.UpdatePasswordDetail(
+                        passwordItem.copy(password = it)
+                    )
+                )
             },
             onChangeNote = {
-                viewModel.handleEvent(DetailEvent.UpdatePasswordDetail(
-                    passwordItem.copy(note = it)
-                ))
+                viewModel.handleEvent(
+                    DetailEvent.UpdatePasswordDetail(
+                        passwordItem.copy(note = it)
+                    )
+                )
             },
             onSaveClick = {
                 onSaveClick.invoke(passwordItem)
                 viewModel.handleEvent(
                     DetailEvent.SavePasswordDetail(passwordItem)
                 )
+            },
+            onDeleteClick = {
+                onDeleteClick.invoke(passwordItem)
+                viewModel.handleEvent(
+                    DetailEvent.DeleteePasswordDetail(passwordItem)
+                )
+
             }
         )
     }
@@ -108,12 +123,13 @@ fun DetailScreen(
 
 @Composable
 fun DetailScreenImpl(
-    onSaveClick: () -> Unit,
     nameInput: String,
     passwordInput: String,
     noteInput: String,
+    onSaveClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     onChangeName: (String) -> Unit,
-    onChangePassword : (String) -> Unit,
+    onChangePassword: (String) -> Unit,
     onChangeNote: (String) -> Unit
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
@@ -146,14 +162,26 @@ fun DetailScreenImpl(
         )
     }
 
-    Button(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        onClick = onSaveClick
-
+    Row(
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        Text(stringResource(Res.string.save))
+        Button(
+            modifier = Modifier
+                .padding(16.dp),
+            onClick = onSaveClick
+
+        ) {
+            Text(stringResource(Res.string.save))
+        }
+        Button(
+            modifier = Modifier
+                .padding(16.dp),
+            onClick = onDeleteClick
+
+        ) {
+            Text(stringResource(Res.string.delete))
+        }
     }
 
 }
@@ -161,15 +189,14 @@ fun DetailScreenImpl(
 @Preview
 @Composable
 fun PreviewDetailScreenImpl() {
-//    DetailScreenImpl(
-//        mutableStateOf(DetailState(
-//            PasswordItem(
-//                name = "Name",
-//                password = "Password",
-//                note = "I save it"
-//            ),
-//            isViewOnly = false
-//        )),
-//        {},
-//    )
+    DetailScreenImpl(
+        nameInput = "Passw",
+        passwordInput = "121ewe#@323",
+        noteInput = "I save it !!!",
+        {},
+        {},
+        {},
+        {},
+        {}
+    )
 }

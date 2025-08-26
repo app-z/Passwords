@@ -31,6 +31,10 @@ class LocalRepository(
         passwordsDao.updatePassword(password)
     }
 
+    suspend fun deletePassword(password: PasswordsEntity) = withContext(DispatchersRepository.DispatchersIO) {
+        passwordsDao.deletePassword(password)
+    }
+
     suspend fun getCount(): Int = withContext(DispatchersRepository.DispatchersIO) { passwordsDao.count() }
 
     suspend fun getMaxId(): String = withContext(DispatchersRepository.DispatchersIO) { passwordsDao.getMaxId() }

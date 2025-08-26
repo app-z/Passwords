@@ -78,6 +78,16 @@ class DetailViewModel(
                     it.copy(passwordItem = events.passwordItem)
                 }
             }
+
+            is DetailEvent.DeleteePasswordDetail -> {
+                deletePassword(events.passwordItem)
+            }
+        }
+    }
+
+    private fun deletePassword(passwordItem: PasswordItem) {
+        viewModelScope.launch(DispatchersRepository.DispatchersIO + coroutineExceptionHandler) {
+            localRepository.deletePassword(passwordItem.mapToEntity())
         }
     }
 

@@ -101,7 +101,9 @@ fun NavigationApplication() {
                                 onSaveClick = {
                                     navigateViewModel.popBackStackToHome()
                                 },
-                                navController = navController
+                                onDeleteClick = {
+                                    navigateViewModel.popBackStackToHome()
+                                }
                             )
                         }
                 }
