@@ -134,7 +134,6 @@ fun DetailScreenImpl(
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         OutlinedTextField(
-            readOnly = false,
             value = nameInput,
             onValueChange = { newText -> onChangeName.invoke(newText) },
             label = { Text("Name") },
@@ -144,7 +143,6 @@ fun DetailScreenImpl(
 
     Column(modifier = Modifier.padding(16.dp)) {
         OutlinedTextField(
-            readOnly = false,
             value = passwordInput,
             onValueChange = { newText -> onChangePassword.invoke(newText) },
             label = { Text("Password") },
@@ -154,7 +152,6 @@ fun DetailScreenImpl(
 
     Column(modifier = Modifier.padding(16.dp)) {
         OutlinedTextField(
-            readOnly = false,
             value = noteInput,
             onValueChange = { newText -> onChangeNote(newText) },
             label = { Text("Note") },

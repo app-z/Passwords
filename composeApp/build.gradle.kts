@@ -67,6 +67,8 @@ kotlin {
             implementation(libs.androidx.room.runtime)
 
             implementation(libs.sqlite.bundled)
+            implementation(libs.sql.cipher)
+
             implementation(libs.coil)
             implementation(libs.coil.compose)
             implementation(libs.coil.network)
@@ -74,13 +76,13 @@ kotlin {
             implementation(libs.screen.size)
 
 
-
             // Koin
             api(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.composeVM)
             implementation(libs.ktor.logging)
-            implementation("org.jetbrains.compose.ui:ui-backhandler:1.8.2")
+
+            implementation(libs.compose.backhandler)
 
         }
 

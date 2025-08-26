@@ -23,7 +23,7 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
 ): AppDatabase {
     return builder
-        .setDriver(BundledSQLiteDriver())
+//        .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(DispatchersRepository.DispatchersIO)
         .fallbackToDestructiveMigration(
             dropAllTables = true
