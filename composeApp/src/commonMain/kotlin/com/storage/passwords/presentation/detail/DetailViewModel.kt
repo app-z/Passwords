@@ -47,11 +47,12 @@ class DetailViewModel(
             loadDetail()
             println("password_id = $password_id")
         } else {
+            // New password
             viewModelScope.launch(DispatchersRepository.DispatchersMain + coroutineExceptionHandler) {
                 _state.emit(
                     DetailState(
                         passwordItem = PasswordItem(
-                            id = "0",
+                            id = "-1",
                             name = "Password",
                             password = "********",
                             saggastion = "Name of dog",
@@ -70,7 +71,6 @@ class DetailViewModel(
             DetailEvent.LoadPasswordDetail -> {}
             is DetailEvent.SavePasswordDetail -> {
                 saveNewPassword(events.passwordItem)
-
             }
 
             is DetailEvent.UpdatePasswordDetail -> {
