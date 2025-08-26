@@ -14,12 +14,14 @@ import passwords.composeapp.generated.resources.Res
 import passwords.composeapp.generated.resources.about
 import passwords.composeapp.generated.resources.add_password
 import passwords.composeapp.generated.resources.edit_password
+import passwords.composeapp.generated.resources.reload
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BurgerMenu(
     onAboutItem: () -> Unit,
     onAddItem: () -> Unit,
+    onReloadItem: () -> Unit,
     drawerState: DrawerState,
     content: @Composable () -> Unit
 ) {
@@ -53,6 +55,17 @@ fun BurgerMenu(
                         scope.launch { drawerState.close() }
                     }
                 )
+                NavigationDrawerItem(
+                    label = {
+                        Text(text = stringResource(Res.string.reload))
+                    },
+                    selected = false,
+                    onClick = {
+                        onReloadItem.invoke()
+                        scope.launch { drawerState.close() }
+                    }
+                )
+
             }
         }
     ) {

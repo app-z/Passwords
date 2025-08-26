@@ -1,11 +1,7 @@
 package com.storage.passwords.presentation.menu.navigation
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -44,6 +40,9 @@ fun NavigationApplication() {
         },
         onAboutItem = {
             navigateViewModel.navigateToRoute(Screen.About.route)
+        },
+        onReloadItem = {
+            navigateViewModel.reloadPasswords()
         }
     ) {
 
@@ -55,6 +54,15 @@ fun NavigationApplication() {
                 ApplicationTopBar(
                     navController = navController,
                     drawerState = drawerState
+                )
+            },
+            bottomBar = {
+                ApplicationBottomBar(
+                    navController = navController,
+                    drawerState = drawerState,
+                    onReload = {
+                        navigateViewModel.reloadPasswords()
+                    }
                 )
             }
         ) { paddingValues ->
@@ -112,3 +120,4 @@ fun NavigationApplication() {
         }
     }
 }
+

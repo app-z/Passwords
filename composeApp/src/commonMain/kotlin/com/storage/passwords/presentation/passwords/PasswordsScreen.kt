@@ -107,7 +107,6 @@ fun PasswordsScreen(
                         onClick = {
                             viewModel.handleEvent(PasswordsEvent.LoadPasswords)
                         }) {
-                        Text("Reload")
                     }
                 }
             }
@@ -131,23 +130,6 @@ fun PasswordsScreen(
                 }
             }
         }
-
-        ReloadFromNetwork({
-            viewModel.handleEvent(PasswordsEvent.LoadPasswordsFromNetwork)
-        })
-    }
-}
-
-@Composable
-fun ReloadFromNetwork(onClick: () -> Unit) {
-    Button(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        onClick = {
-            onClick.invoke()
-        }) {
-        Text("Reload from Internet")
     }
 }
 

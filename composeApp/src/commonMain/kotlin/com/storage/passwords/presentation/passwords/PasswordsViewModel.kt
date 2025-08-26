@@ -3,10 +3,13 @@ package com.storage.passwords.presentation.passwords
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spacex.utils.UiText
+import com.storage.passwords.models.PasswordItem
+import com.storage.passwords.models.PasswordsEntity
 import com.storage.passwords.models.mapToDomain
 import com.storage.passwords.models.mapToEntity
 import com.storage.passwords.repository.LocalRepository
 import com.storage.passwords.repository.NetworkRepository
+import com.storage.passwords.usecase.LoadFromInternetUseCase
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import passwords.composeapp.generated.resources.Res
@@ -15,7 +18,8 @@ import passwords.composeapp.generated.resources.unknown_error
 
 class PasswordsViewModel(
     val localRepository: LocalRepository,
-    val networkRepository: NetworkRepository
+    val networkRepository: NetworkRepository,
+    val loadFromInternetUseCase: LoadFromInternetUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PasswordsState())
@@ -96,8 +100,28 @@ class PasswordsViewModel(
     }
 
     private suspend fun loadDataFromDataBaseOrError() {
+
         _effect.emit(PasswordsEffect.Loading)
 
+        loadFromInternetUseCase.loadFromInternet(
+            onLoadSuccess = { passwordItems: List<PasswordItem> ->
+                _state.update {
+                    it.copy(passwordItems = passwordItems)
+                }
+                viewModelScope.launch {
+                    _effect.emit(PasswordsEffect.LoadSuccess)
+                }
+            },
+            onLoadError = {
+                viewModelScope.launch {
+                    _effect.emit(
+                        PasswordsEffect.LoadError(
+                            UiText.StringResource(Res.string.error_database)
+                        )
+                    )
+                }
+            }
+        )
         localRepository
             .loadData()
             .catch {
