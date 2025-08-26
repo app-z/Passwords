@@ -7,14 +7,8 @@ import com.storage.passwords.models.mapToDomain
 import com.storage.passwords.models.mapToEntity
 import com.storage.passwords.repository.LocalRepository
 import com.storage.passwords.repository.NetworkRepository
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import passwords.composeapp.generated.resources.Res
 import passwords.composeapp.generated.resources.error_database
 import passwords.composeapp.generated.resources.unknown_error
@@ -25,15 +19,19 @@ class PasswordsViewModel(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PasswordsState())
-    val state = _state.asStateFlow()
+
+    val state = _state
+        .onStart {
+            handleEvent(PasswordsEvent.LoadPasswords)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            _state.value
+        )
 
     private val _effect = MutableSharedFlow<PasswordsEffect>()
     val effect = _effect.asSharedFlow()
-
-
-    init {
-        loadPasswords()
-    }
 
     fun handleEvent(event: PasswordsEvent) {
         when (event) {
