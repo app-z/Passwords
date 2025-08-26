@@ -103,25 +103,6 @@ class PasswordsViewModel(
 
         _effect.emit(PasswordsEffect.Loading)
 
-        loadFromInternetUseCase.loadFromInternet(
-            onLoadSuccess = { passwordItems: List<PasswordItem> ->
-                _state.update {
-                    it.copy(passwordItems = passwordItems)
-                }
-                viewModelScope.launch {
-                    _effect.emit(PasswordsEffect.LoadSuccess)
-                }
-            },
-            onLoadError = {
-                viewModelScope.launch {
-                    _effect.emit(
-                        PasswordsEffect.LoadError(
-                            UiText.StringResource(Res.string.error_database)
-                        )
-                    )
-                }
-            }
-        )
         localRepository
             .loadData()
             .catch {
