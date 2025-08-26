@@ -72,7 +72,7 @@ fun PasswordsScreen(
     }
 
     if (errorMessage.isNotEmpty()) {
-        scope.launch (DispatchersRepository.DispatchersMain) {
+        scope.launch (DispatchersRepository.main()) {
             snackbarHostState.showSnackbar(errorMessage)
         }
     }

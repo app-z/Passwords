@@ -5,8 +5,6 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.storage.passwords.database.AppDatabase
 import com.storage.passwords.database.getDatabaseBuilder
 import com.storage.passwords.repository.DispatchersRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import org.koin.dsl.module
 
 val databaseModule = module {
@@ -24,7 +22,7 @@ fun getRoomDatabase(
 ): AppDatabase {
     return builder
         .setDriver(BundledSQLiteDriver())
-        .setQueryCoroutineContext(DispatchersRepository.DispatchersIO)
+        .setQueryCoroutineContext(DispatchersRepository.io())
         .fallbackToDestructiveMigration(
             dropAllTables = true
         )

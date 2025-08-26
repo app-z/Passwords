@@ -48,7 +48,7 @@ class DetailViewModel(
             println("password_id = $password_id")
         } else {
             // New password
-            viewModelScope.launch(DispatchersRepository.DispatchersMain + coroutineExceptionHandler) {
+            viewModelScope.launch(DispatchersRepository.main() + coroutineExceptionHandler) {
                 _state.emit(
                     DetailState(
                         passwordItem = PasswordItem(
@@ -86,13 +86,13 @@ class DetailViewModel(
     }
 
     private fun deletePassword(passwordItem: PasswordItem) {
-        viewModelScope.launch(DispatchersRepository.DispatchersIO + coroutineExceptionHandler) {
+        viewModelScope.launch(DispatchersRepository.io() + coroutineExceptionHandler) {
             localRepository.deletePassword(passwordItem.mapToEntity())
         }
     }
 
     private fun saveNewPassword(passwordItem: PasswordItem) {
-        viewModelScope.launch(DispatchersRepository.DispatchersIO + coroutineExceptionHandler) {
+        viewModelScope.launch(DispatchersRepository.io() + coroutineExceptionHandler) {
             if (passwordItem.id != "-1") {
                 localRepository.updatePassword(
                     passwordItem.mapToEntity()
