@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.storage.passwords.models.PasswordsEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -30,6 +31,9 @@ interface PasswordsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
    suspend fun insertPassword(password: PasswordsEntity)
+
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun updatePassword(password: PasswordsEntity)
 
 
 }

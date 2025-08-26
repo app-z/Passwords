@@ -12,6 +12,8 @@
 
     <string name="save">Save</string>
 
+    <string name="unknown_error">"Unknown error"</string>
+
 
     <string name="error_unexpected_message">Unexpected error occurred. We are working on it.</string>
     <string name="error_client_unexpected_message">Something technically is wrong. We are working on it.</string>

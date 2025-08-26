@@ -21,8 +21,7 @@ fun BurgerMenu(
     onAboutItem: () -> Unit,
     onAddItem: () -> Unit,
     drawerState: DrawerState,
-    appTopBarContent: @Composable () -> Unit,
-    content: @Composable (paddingValue: PaddingValues) -> Unit
+    content: @Composable () -> Unit
 ) {
 
     val scope = rememberCoroutineScope()
@@ -57,12 +56,7 @@ fun BurgerMenu(
             }
         }
     ) {
-        Scaffold(
-            topBar = appTopBarContent
-        ) { paddingValues ->
             // Main screen content
-            content(paddingValues)
-
-        }
+            content()
     }
 }

@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import passwords.composeapp.generated.resources.Res
 import passwords.composeapp.generated.resources.error_database
+import passwords.composeapp.generated.resources.unknown_error
 
 class PasswordsViewModel(
     val localRepository: LocalRepository,
@@ -129,9 +131,13 @@ class PasswordsViewModel(
         viewModelScope.launch {
             _effect.emit(
                 PasswordsEffect.LoadError(
-                    UiText.StaticString(
-                        error ?: "Unknown error"
-                    )
+                    if (error != null) {
+                        UiText.StaticString(
+                            error
+                        )
+                    } else {
+                        UiText.StringResource(Res.string.unknown_error)
+                    }
                 )
             )
         }

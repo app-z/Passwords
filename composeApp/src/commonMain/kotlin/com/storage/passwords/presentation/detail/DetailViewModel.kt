@@ -6,17 +6,17 @@ import com.spacex.utils.UiText
 import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.models.mapToDomain
 import com.storage.passwords.models.mapToEntity
+import com.storage.passwords.repository.DispatchersRepository
 import com.storage.passwords.repository.LocalRepository
-import io.ktor.events.Events
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.handleCoroutineException
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import passwords.composeapp.generated.resources.Res
+import passwords.composeapp.generated.resources.unknown_error
 
 class DetailViewModel(
     val password_id: String,
@@ -27,7 +27,10 @@ class DetailViewModel(
         viewModelScope.launch {
             _effect.emit(
                 DetailEffect.LoadError(
-                    UiText.StaticString(exception.message ?: "Unknown Error")
+                    if (exception.message != null)
+                        UiText.StaticString(exception.message!!)
+                    else
+                        UiText.StringResource(Res.string.unknown_error)
                 )
             )
         }
@@ -42,8 +45,9 @@ class DetailViewModel(
     init {
         if (password_id != "-1") {
             loadDetail()
+            println("password_id = $password_id")
         } else {
-            viewModelScope.launch(coroutineExceptionHandler) {
+            viewModelScope.launch(DispatchersRepository.DispatchersMain + coroutineExceptionHandler) {
                 _state.emit(
                     DetailState(
                         passwordItem = PasswordItem(
@@ -64,20 +68,32 @@ class DetailViewModel(
     fun handleEvent(events: DetailEvent) {
         when (events) {
             DetailEvent.LoadPasswordDetail -> {}
-            is DetailEvent.AddPasswordDetail -> {
-                addNewPassword(events.passwordItem)
+            is DetailEvent.SavePasswordDetail -> {
+                saveNewPassword(events.passwordItem)
 
+            }
+
+            is DetailEvent.UpdatePasswordDetail -> {
+                _state.update {
+                    it.copy(passwordItem = events.passwordItem)
+                }
             }
         }
     }
 
-    private fun addNewPassword(passwordItem: PasswordItem) {
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            val maxId = localRepository.getMaxId()
-            val password = passwordItem.copy(id = (maxId.toInt() + 1).toString())
-            localRepository.insertPassword(
-                password.mapToEntity()
-            )
+    private fun saveNewPassword(passwordItem: PasswordItem) {
+        viewModelScope.launch(DispatchersRepository.DispatchersIO + coroutineExceptionHandler) {
+            if (passwordItem.id != "-1") {
+                localRepository.updatePassword(
+                    passwordItem.mapToEntity()
+                )
+            } else {
+                val maxId = localRepository.getMaxId()
+                val password = passwordItem.copy(id = (maxId.toInt() + 1).toString())
+                localRepository.insertPassword(
+                    password.mapToEntity()
+                )
+            }
         }
     }
 

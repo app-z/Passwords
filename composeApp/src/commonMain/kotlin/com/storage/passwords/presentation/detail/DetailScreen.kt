@@ -43,7 +43,9 @@ fun DetailScreen(
             }
         )
 
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val state = viewModel.state.collectAsStateWithLifecycle()
+
+    val passwordItem = state.value.passwordItem
 
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(key1 = lifecycleOwner) {
@@ -76,11 +78,28 @@ fun DetailScreen(
             .fillMaxSize()
     ) {
         DetailScreenImpl(
-            state = state,
+            nameInput = passwordItem.name,
+            passwordInput = passwordItem.password,
+            noteInput = passwordItem.note,
+            onChangeName = {
+                viewModel.handleEvent(DetailEvent.UpdatePasswordDetail(
+                    passwordItem.copy(name = it)
+                ))
+            },
+            onChangePassword = {
+                viewModel.handleEvent(DetailEvent.UpdatePasswordDetail(
+                    passwordItem.copy(password = it)
+                ))
+            },
+            onChangeNote = {
+                viewModel.handleEvent(DetailEvent.UpdatePasswordDetail(
+                    passwordItem.copy(note = it)
+                ))
+            },
             onSaveClick = {
-                onSaveClick.invoke(it)
+                onSaveClick.invoke(passwordItem)
                 viewModel.handleEvent(
-                    DetailEvent.AddPasswordDetail(it)
+                    DetailEvent.SavePasswordDetail(passwordItem)
                 )
             }
         )
@@ -89,81 +108,68 @@ fun DetailScreen(
 
 @Composable
 fun DetailScreenImpl(
-    state: DetailState,
-    onSaveClick: (PasswordItem) -> Unit,
+    onSaveClick: () -> Unit,
+    nameInput: String,
+    passwordInput: String,
+    noteInput: String,
+    onChangeName: (String) -> Unit,
+    onChangePassword : (String) -> Unit,
+    onChangeNote: (String) -> Unit
 ) {
-    val passwordItem = state.passwordItem
-    when (state.isViewOnly) {
-        true -> {
-            Text(text = passwordItem.name)
-            Text(text = passwordItem.password)
-            Text(text = passwordItem.note)
-        }
-
-        else -> {
-            var nameInput by remember { mutableStateOf(passwordItem.name) }
-            var passwordInput by remember { mutableStateOf(passwordItem.password) }
-            var noteInput by remember { mutableStateOf(passwordItem.note) }
-
-            Column(modifier = Modifier.padding(16.dp)) {
-                OutlinedTextField(
-                    value = nameInput,
-                    onValueChange = { newText -> nameInput = newText },
-                    label = { Text("Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            Column(modifier = Modifier.padding(16.dp)) {
-                OutlinedTextField(
-                    value = passwordInput,
-                    onValueChange = { newText -> passwordInput = newText },
-                    label = { Text("Password") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            Column(modifier = Modifier.padding(16.dp)) {
-                OutlinedTextField(
-                    value = noteInput,
-                    onValueChange = { newText -> noteInput = newText },
-                    label = { Text("Note") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            Button(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                onClick = {
-                    val newPasswordItm = PasswordItem(
-                        name = nameInput,
-                        password = passwordInput,
-                        note = noteInput
-                    )
-                    onSaveClick(newPasswordItm)
-                }
-            ) {
-                Text(stringResource(Res.string.save))
-            }
-
-        }
+    Column(modifier = Modifier.padding(16.dp)) {
+        OutlinedTextField(
+            readOnly = false,
+            value = nameInput,
+            onValueChange = { newText -> onChangeName.invoke(newText) },
+            label = { Text("Name") },
+            modifier = Modifier.fillMaxWidth()
+        )
     }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        OutlinedTextField(
+            readOnly = false,
+            value = passwordInput,
+            onValueChange = { newText -> onChangePassword.invoke(newText) },
+            label = { Text("Password") },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        OutlinedTextField(
+            readOnly = false,
+            value = noteInput,
+            onValueChange = { newText -> onChangeNote(newText) },
+            label = { Text("Note") },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    Button(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        onClick = onSaveClick
+
+    ) {
+        Text(stringResource(Res.string.save))
+    }
+
 }
 
 @Preview
 @Composable
 fun PreviewDetailScreenImpl() {
-    DetailScreenImpl(
-        DetailState(
-            PasswordItem(
-                name = "Name",
-                password = "Password",
-                note = "I save it"
-            ),
-            isViewOnly = false
-        ),
-        {}
-    )
+//    DetailScreenImpl(
+//        mutableStateOf(DetailState(
+//            PasswordItem(
+//                name = "Name",
+//                password = "Password",
+//                note = "I save it"
+//            ),
+//            isViewOnly = false
+//        )),
+//        {},
+//    )
 }

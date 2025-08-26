@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,22 +20,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.presentation.shimmerEffect
+import com.storage.passwords.repository.DispatchersRepository
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PasswordsScreen(
     paddingValues: PaddingValues,
+    snackbarHostState: SnackbarHostState,
     currentItem: (passsword_id: String) -> Unit,
 ) {
     val viewModel = koinViewModel<PasswordsViewModel>()
-
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val localLifecycleOwner = LocalLifecycleOwner.current
 
     var errorMessage by remember { mutableStateOf("") }
     var isShimmerListStart by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
 
     val effect = viewModel.effect
         .flowWithLifecycle(
@@ -67,7 +72,9 @@ fun PasswordsScreen(
     }
 
     if (errorMessage.isNotEmpty()) {
-        Text(errorMessage)
+        scope.launch (DispatchersRepository.DispatchersMain) {
+            snackbarHostState.showSnackbar(errorMessage)
+        }
     }
 
 
