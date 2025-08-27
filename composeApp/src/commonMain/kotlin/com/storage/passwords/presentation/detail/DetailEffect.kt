@@ -9,4 +9,6 @@ sealed interface DetailEffect {
     data class LoadError(val message: UiText) : DetailEffect
 
     data object DeletePasswordSuccess: DetailEffect
+
+    data object NavigationBack: DetailEffect
 }

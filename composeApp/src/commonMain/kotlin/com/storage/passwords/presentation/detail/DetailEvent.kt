@@ -9,4 +9,5 @@ sealed interface DetailEvent {
     data class UpdatePasswordDetail(val passwordItem: PasswordItem) : DetailEvent
     data class DeleteePasswordDetail(val passwordItem: PasswordItem) : DetailEvent
 
+    data object NavigationBack: DetailEvent
 }

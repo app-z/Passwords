@@ -6,6 +6,7 @@ import com.spacex.utils.UiText
 import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.models.mapToDomain
 import com.storage.passwords.models.mapToEntity
+import com.storage.passwords.presentation.passwords.PasswordsEffect
 import com.storage.passwords.repository.DispatchersRepository
 import com.storage.passwords.repository.LocalRepository
 import com.storage.passwords.usecase.SendRequestToServerUseCase
@@ -86,6 +87,10 @@ class DetailViewModel(
             is DetailEvent.DeleteePasswordDetail -> {
                 deletePassword(events.passwordItem)
             }
+
+            DetailEvent.NavigationBack -> {
+                navigateBack()
+            }
         }
     }
 
@@ -156,6 +161,12 @@ class DetailViewModel(
                     }
                 }
             )
+        }
+    }
+
+    private fun navigateBack() {
+        viewModelScope.launch {
+            _effect.emit(DetailEffect.NavigationBack)
         }
     }
 

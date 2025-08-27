@@ -73,13 +73,17 @@ fun DetailScreen(
                 is DetailEffect.DeletePasswordSuccess -> {
                     onBackHandler.invoke()
                 }
+
+                DetailEffect.NavigationBack -> {
+                    onBackHandler.invoke()
+                }
             }
         }
     }
 
     BackHandler(enabled = true) {
         println("BackHandler")
-        onBackHandler.invoke()
+        viewModel.handleEvent(DetailEvent.NavigationBack)
     }
 
     Column(
