@@ -28,39 +28,23 @@ fun SettingsScreen(
 
     val state = viewModel.state.collectAsStateWithLifecycle()
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(Res.string.title_settings),
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
+    SettingScreenContent(
+        paddingValues = paddingValues,
+        state = state,
+        onChangeTheme = { themeDark ->
+            viewModel.handleEvent(
+                SettingsEvent.Theme(
+                    if (themeDark) {
+                        Const.Theme.DARK_MODE.name
+                    } else {
+                        Const.Theme.LIGHT_MODE.name
+                    }
+                )
             )
         }
-    ) { paddingValues ->
-
-        SettingScreenContent(
-            paddingValues = paddingValues,
-            state = state,
-            onChangeTheme = { themeDark ->
-                viewModel.handleEvent(
-                    SettingsEvent.Theme(
-                        if (themeDark) {
-                            Const.Theme.DARK_MODE.name
-                        } else {
-                            Const.Theme.LIGHT_MODE.name
-                        }
-                    )
-                )
-            }
-        )
-    }
+    )
 }
+
 
 @Composable
 fun SettingScreenContent(
@@ -69,7 +53,7 @@ fun SettingScreenContent(
     onChangeTheme: (themeDark: Boolean) -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(paddingValues)
+        modifier = Modifier.padding(8.dp)
             .fillMaxWidth()
     ) {
 

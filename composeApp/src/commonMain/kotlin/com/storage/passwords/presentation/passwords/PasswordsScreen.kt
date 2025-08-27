@@ -74,7 +74,7 @@ fun PasswordsScreen(
 
     Column(
         modifier = Modifier
-            .background(Color.White)
+//            .background(MaterialTheme.colorScheme.onBackground)
 //            .safeContentPadding()
 //            .padding(paddingValues = paddingValues)
             .fillMaxSize(),
@@ -164,8 +164,8 @@ fun PasswordRow(
 ) {
 
     Card(
-        modifier = modifier.background(Color.LightGray)
-            .background(Color.White)
+        modifier = modifier
+//            .background(MaterialTheme.colorScheme.onBackground)
             .fillMaxWidth()
             .padding(8.dp)
             .clickable { onClick.invoke(passwordItem) },
