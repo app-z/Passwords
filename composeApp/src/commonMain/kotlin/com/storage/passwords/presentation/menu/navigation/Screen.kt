@@ -17,7 +17,9 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import passwords.composeapp.generated.resources.Detail
 import passwords.composeapp.generated.resources.Res
+import passwords.composeapp.generated.resources.about
 import passwords.composeapp.generated.resources.home
+import passwords.composeapp.generated.resources.title_settings
 
 sealed class Screen(val route: String) {
 
@@ -64,5 +66,23 @@ sealed class Screen(val route: String) {
 
     object About: Screen("About")
 
-    object Settings : Screen("settings")
+    object Settings : Screen("settings") {
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun SettingsAppBar(onClickBack: () -> Unit) {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.title_settings)) },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        onClickBack.invoke()
+                    }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "ArrowBack"
+                        )
+                    }
+                }
+            )
+        }
+    }
 }

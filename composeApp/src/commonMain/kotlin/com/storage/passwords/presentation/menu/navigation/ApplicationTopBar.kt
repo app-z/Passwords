@@ -23,12 +23,12 @@ fun ApplicationTopBar(
     when (route.value) {
         Screen.Home.route -> Screen.Home.MainAppBar(drawerState)
         Screen.About.route -> {}
-        Screen.Detail.route -> Screen.Detail.DetailAppBar(
-            onClickBack = {
-                navigateViewModel.popBackStackToHome()
-            }
-        )
+        Screen.Detail.route -> Screen.Detail.DetailAppBar {
+            navigateViewModel.popBackStackToHome()
+        }
 
-        Screen.Settings.route -> {}
+        Screen.Settings.route -> Screen.Settings.SettingsAppBar {
+            navigateViewModel.popBackStackToHome()
+        }
     }
 }

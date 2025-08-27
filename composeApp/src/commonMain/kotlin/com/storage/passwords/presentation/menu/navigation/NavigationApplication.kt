@@ -12,13 +12,15 @@ import com.storage.passwords.presentation.about.AboutScreen
 import com.storage.passwords.presentation.detail.DetailScreen
 import com.storage.passwords.presentation.menu.BurgerMenu
 import com.storage.passwords.presentation.passwords.PasswordsScreen
+import com.storage.passwords.presentation.settings.SettingsScreen
+import com.storage.passwords.presentation.settings.SettingsViewModel
 import com.storage.passwords.utils.Const.PASSWORD_ID_PARAM
 import kotlinx.serialization.json.Json
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun NavigationApplication() {
+fun NavigationApplication(settingViewModel: SettingsViewModel) {
 
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -43,6 +45,9 @@ fun NavigationApplication() {
         },
         onReloadItem = {
             navigateViewModel.reloadPasswords()
+        },
+        onSettingsItem = {
+            navigateViewModel.navigateToRoute(Screen.Settings.route)
         }
     ) {
 
@@ -114,6 +119,14 @@ fun NavigationApplication() {
                                 }
                             )
                         }
+                }
+                composable(Screen.Settings.route) {
+                    SettingsScreen(
+                        paddingValues = paddingValues,
+                        rootNavController = navController,
+                        snackBarHostState = snackbarHostState,
+                        viewModel = settingViewModel
+                    )
                 }
 
             }

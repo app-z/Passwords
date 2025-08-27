@@ -28,7 +28,7 @@ class PasswordsViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = PasswordsState()
+            initialValue = _state.value
         )
 
     private val _effect = MutableSharedFlow<PasswordsEffect>()
@@ -107,12 +107,16 @@ class PasswordsViewModel(
                 }
 
             },
-            onLoadError = {
+            onLoadError = { error ->
                 viewModelScope.launch {
                     _state.value.isLoading = false
                     _effect.emit(
                         PasswordsEffect.LoadError(
-                            UiText.StringResource(Res.string.error_database)
+                            if (error.isNullOrEmpty()) {
+                                UiText.StringResource(Res.string.unknown_error)
+                            } else {
+                                UiText.StaticString(error)
+                            }
                         )
                     )
                 }

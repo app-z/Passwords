@@ -15,6 +15,7 @@ import passwords.composeapp.generated.resources.about
 import passwords.composeapp.generated.resources.add_password
 import passwords.composeapp.generated.resources.edit_password
 import passwords.composeapp.generated.resources.reload
+import passwords.composeapp.generated.resources.title_settings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,6 +23,7 @@ fun BurgerMenu(
     onAboutItem: () -> Unit,
     onAddItem: () -> Unit,
     onReloadItem: () -> Unit,
+    onSettingsItem: () -> Unit,
     drawerState: DrawerState,
     content: @Composable () -> Unit
 ) {
@@ -42,6 +44,16 @@ fun BurgerMenu(
                     selected = false,
                     onClick = {
                         onAboutItem.invoke()
+                        scope.launch { drawerState.close() }
+                    }
+                )
+                NavigationDrawerItem(
+                    label = {
+                        Text(text = stringResource(Res.string.title_settings))
+                    },
+                    selected = false,
+                    onClick = {
+                        onSettingsItem.invoke()
                         scope.launch { drawerState.close() }
                     }
                 )
