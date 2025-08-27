@@ -1,22 +1,34 @@
 package com.storage.passwords.presentation.passwords
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Shower
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
+import coil3.compose.AsyncImage
 import com.spacex.utils.UiText
 import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.presentation.shimmerEffect
@@ -91,8 +103,8 @@ fun PasswordsScreen(
                 ErrorMessageScreen(
                     UiText.StaticString("No Data"),
                     onRetry = {
-                    viewModel.handleEvent(PasswordsEvent.LoadPasswords)
-                })
+                        viewModel.handleEvent(PasswordsEvent.LoadPasswords)
+                    })
             }
 
             else -> {
@@ -140,7 +152,6 @@ fun PasswordsListScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth(),
-//            .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items(passwordItems, key = { it.id }) { passwordItem ->
@@ -163,43 +174,83 @@ fun PasswordRow(
     onClick: (passwordItem: PasswordItem) -> Unit
 ) {
 
+    var showPassword by remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier
-//            .background(MaterialTheme.colorScheme.onBackground)
             .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { onClick.invoke(passwordItem) },
+            .height(120.dp)
+            .padding(12.dp),
 
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
         ),
         shape = RoundedCornerShape(8.dp),
     ) {
+
         Row(
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text(
+            Column(
+                modifier = Modifier.weight(0.9f)
+                    .clickable { onClick.invoke(passwordItem) },
+            ) {
+
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 4.dp),
+                        text = passwordItem.id
+                    )
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 4.dp, start = 8.dp),
+                        text = if (showPassword) passwordItem.password else "*********"
+                    )
+                }
+                Text(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    text = passwordItem.note
+                )
+            }
+
+
+            Row(
                 modifier = Modifier
-                    .padding(top = 4.dp)
-                    .wrapContentWidth(),
-                text = passwordItem.id
-            )
-            Text(
-                modifier = Modifier
-                    .padding(top = 4.dp, start = 8.dp)
-                    .fillMaxWidth(),
-                text = passwordItem.name
-            )
+                    .fillMaxHeight()
+                    .padding(end = 8.dp)
+                    .weight(0.1f),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.pointerInput(Unit) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown()
+                            // Handle the down event
+                            showPassword = true
+
+                            do {
+                                val event = awaitPointerEvent()
+                            } while (event.changes.any { it.pressed })
+
+                            showPassword = false
+                        }
+                    },
+                    imageVector = if (showPassword) Icons.Filled.Visibility else Icons.Outlined.Visibility,
+                    contentDescription = ""
+                )
+            }
+
         }
-        Text(
-            modifier = Modifier
-                .padding(top = 8.dp, start = 8.dp)
-                .fillMaxWidth(),
-            text = passwordItem.note
-        )
+
+
     }
 }
 
@@ -214,7 +265,7 @@ fun PasswordRowPreview() {
             name = "Email",
             password = "safsfdsfsdf",
             saggastion = "What u favorite color?",
-            note = "I remember",
+            note = "I remember bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
             datetime = "10.10.2025"
         ),
         {}
