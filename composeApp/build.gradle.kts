@@ -71,7 +71,7 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network)
             implementation(libs.navigation.compose)
-            implementation(libs.screen.size)
+//            implementation(libs.screen.size)
 
 
 
