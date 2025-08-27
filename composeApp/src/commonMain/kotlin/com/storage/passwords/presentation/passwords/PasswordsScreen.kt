@@ -17,9 +17,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.spacex.utils.UiText
 import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.presentation.shimmerEffect
 import com.storage.passwords.repository.DispatchersRepository
+import com.storage.passwords.utils.ErrorMessageScreen
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -36,7 +38,6 @@ fun PasswordsScreen(
     val localLifecycleOwner = LocalLifecycleOwner.current
 
     var errorMessage by remember { mutableStateOf("") }
-    var isShimmerListStart by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
@@ -50,16 +51,10 @@ fun PasswordsScreen(
         effect.collect {
             when (it) {
                 is PasswordsEffect.LoadError -> {
-                    isShimmerListStart = false
                     errorMessage = it.message.asStringForSuspend()
                 }
 
-                PasswordsEffect.Loading -> {
-                    isShimmerListStart = true
-                }
-
                 PasswordsEffect.LoadSuccess -> {
-                    isShimmerListStart = false
                     errorMessage = ""
                 }
 
@@ -88,45 +83,26 @@ fun PasswordsScreen(
 
         when {
 
+            state.isLoading -> {
+                PasswordListShimmer()
+            }
+
             state.passwordItems.isEmpty() -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        text = "Empty"
-                    )
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
-                        onClick = {
-                            viewModel.handleEvent(PasswordsEvent.LoadPasswords)
-                        }) {
-                    }
-                }
+                ErrorMessageScreen(
+                    UiText.StaticString("No Data"),
+                    onRetry = {
+                    viewModel.handleEvent(PasswordsEvent.LoadPasswords)
+                })
             }
 
             else -> {
-                Crossfade(
-                    targetState = isShimmerListStart,
-                    label = "Icon Crossfade"
-                ) { isShimmerListStart ->
-                    if (isShimmerListStart) {
-                        PasswordListShimmer()
-                    } else {
-                        PasswordsListScreen(
-                            state.passwordItems,
-                            {
-                                viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
-                                println(it)
-                            }
-                        )
+                PasswordsListScreen(
+                    state.passwordItems,
+                    {
+                        viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
+                        println(it)
                     }
-                }
+                )
             }
         }
     }
@@ -199,10 +175,12 @@ fun PasswordRow(
         ),
         shape = RoundedCornerShape(8.dp),
     ) {
-        Row(modifier = Modifier
-            .padding(start = 8.dp)
-            .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 modifier = Modifier
                     .padding(top = 4.dp)

@@ -3,12 +3,10 @@ package com.storage.passwords.presentation.passwords
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spacex.utils.UiText
-import com.storage.passwords.models.PasswordItem
-import com.storage.passwords.models.PasswordsEntity
 import com.storage.passwords.models.mapToDomain
-import com.storage.passwords.models.mapToEntity
 import com.storage.passwords.repository.LocalRepository
 import com.storage.passwords.repository.NetworkRepository
+import com.storage.passwords.usecase.LoadFromDataBaseUseCase
 import com.storage.passwords.usecase.LoadFromInternetUseCase
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -17,8 +15,7 @@ import passwords.composeapp.generated.resources.error_database
 import passwords.composeapp.generated.resources.unknown_error
 
 class PasswordsViewModel(
-    val localRepository: LocalRepository,
-    val networkRepository: NetworkRepository,
+    val loadFromDataBaseUseCase: LoadFromDataBaseUseCase,
     val loadFromInternetUseCase: LoadFromInternetUseCase
 ) : ViewModel() {
 
@@ -31,7 +28,7 @@ class PasswordsViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            _state.value
+            initialValue = PasswordsState()
         )
 
     private val _effect = MutableSharedFlow<PasswordsEffect>()
@@ -57,15 +54,9 @@ class PasswordsViewModel(
 
 
     fun loadPasswords() {
-
         viewModelScope.launch {
-            if (localRepository.getCount() == 0) {
-                try {
-                    loadFromInternetAndPutToDatabase()
-                } catch (ex: Exception) {
-                    errorState(ex.message)
-                }
-
+            if (loadFromInternetUseCase.getCountInDataBase() == 0) {
+                loadFromInternetAndPutToDatabase()
             } else {
                 loadDataFromDataBaseOrError()
             }
@@ -74,53 +65,60 @@ class PasswordsViewModel(
 
     private suspend fun loadFromInternetAndPutToDatabase() {
 
-        _effect.emit(PasswordsEffect.Loading)
+        if (_state.value.isLoading) return
 
-        val passwords = networkRepository.getData(0)
-        if (passwords.isSuccess) {
-            passwords.map { passwordsResults ->
-                val passwordItems = passwordsResults.map { passwordResultItem ->
-                    passwordResultItem.mapToDomain()
-                }
+        _state.value.isLoading = true
+
+        loadFromInternetUseCase.loadFromInternet(
+            onLoadSuccess = { passwordItems ->
                 _state.update {
                     it.copy(
                         passwordItems = passwordItems
                     )
                 }
-                localRepository.insertPasswords(
-                    passwordItems.map { passwordItem ->
-                        passwordItem.mapToEntity()
-                    }
-                )
+                viewModelScope.launch {
+                    _effect.emit(PasswordsEffect.LoadSuccess)
+                }
+                _state.value.isLoading = false
+            },
+            onLoadError = {
+                _state.value.isLoading = false
+                errorState(it)
             }
-            _effect.emit(PasswordsEffect.LoadSuccess)
-        } else {
-            errorState(passwords.exceptionOrNull()?.message)
-        }
+        )
     }
 
     private suspend fun loadDataFromDataBaseOrError() {
 
-        _effect.emit(PasswordsEffect.Loading)
+        if (_state.value.isLoading) return
 
-        localRepository
-            .loadData()
-            .catch {
-                _effect.emit(
-                    PasswordsEffect.LoadError(
-                        UiText.StringResource(Res.string.error_database)
-                    )
-                )
-            }
-            .collect { passwordItemsEntryList ->
+        _state.value.isLoading = true
+
+        loadFromDataBaseUseCase.loadFromDataBase(
+            onLoadSuccess = { passwordItems ->
                 _state.update {
-                    it.copy(passwordItems = passwordItemsEntryList.map { passwordsEntities ->
-                        passwordsEntities.mapToDomain()
-                    }
+                    it.copy(
+                        passwordItems = passwordItems
                     )
                 }
-                _effect.emit(PasswordsEffect.LoadSuccess)
+                viewModelScope.launch {
+                    _state.value.isLoading = false
+                    _effect.emit(PasswordsEffect.LoadSuccess)
+                }
+
+            },
+            onLoadError = {
+                viewModelScope.launch {
+                    _state.value.isLoading = false
+                    _effect.emit(
+                        PasswordsEffect.LoadError(
+                            UiText.StringResource(Res.string.error_database)
+                        )
+                    )
+                }
             }
+
+        )
     }
 
 

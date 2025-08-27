@@ -39,4 +39,8 @@ class LoadFromInternetUseCase(
         }
     }
 
+
+    suspend fun getCountInDataBase() = localRepository.getCount()
+
+
 }
