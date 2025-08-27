@@ -10,6 +10,13 @@ fun PasswordsResult.mapToDomain() = PasswordItem(
 //val saggastion: String = "",
 )
 
+fun PasswordItem.mapToRequest() = PasswordsRequest(
+    id = id,
+    name = name,
+    password = password,
+    note = note
+)
+
 fun PasswordItem.mapToEntity() = PasswordsEntity(
     id = id,
     name = name,

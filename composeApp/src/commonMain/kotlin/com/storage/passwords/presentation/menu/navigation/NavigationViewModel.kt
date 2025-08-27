@@ -3,17 +3,17 @@ package com.storage.passwords.presentation.menu.navigation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.storage.passwords.repository.LocalRepository
-import com.storage.passwords.repository.NetworkRepository
+import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.usecase.LoadFromInternetUseCase
+import com.storage.passwords.usecase.SendRequestToServerUseCase
 import com.storage.passwords.utils.Const.PASSWORD_ID_PARAM
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class NavigationViewModel(
-    val navController: NavController,
-    val loadFromInternetUseCase: LoadFromInternetUseCase
+    private val navController: NavController,
+    private val loadFromInternetUseCase: LoadFromInternetUseCase
 ) : ViewModel() {
 
     private val _currentRoute = MutableStateFlow(Screen.Home.route)

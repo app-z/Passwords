@@ -209,7 +209,7 @@ fun PasswordRow(
                     )
                     Text(
                         modifier = Modifier
-                            .padding(top = 4.dp, start = 8.dp),
+                            .padding(top = 4.dp, start = 24.dp),
                         text = if (showPassword) passwordItem.password else "*********"
                     )
                 }

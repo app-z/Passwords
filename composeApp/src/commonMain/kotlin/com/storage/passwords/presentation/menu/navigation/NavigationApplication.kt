@@ -20,7 +20,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun NavigationApplication(settingViewModel: SettingsViewModel) {
+fun NavigationApplication(
+    settingViewModel: SettingsViewModel,
+) {
 
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -106,15 +108,10 @@ fun NavigationApplication(settingViewModel: SettingsViewModel) {
                         ?.let { jsonId ->
                             val password_id = Json.decodeFromString<String>(jsonId)
                             DetailScreen(
-                                onBackHandler = {
-                                    navigateViewModel.popBackStackToHome()
-                                },
                                 password_id = password_id,
                                 paddingValues = paddingValues,
-                                onSaveClick = {
-                                    navigateViewModel.popBackStackToHome()
-                                },
-                                onDeleteClick = {
+                                snackbarHostState = snackbarHostState,
+                                onBackHandler = {
                                     navigateViewModel.popBackStackToHome()
                                 }
                             )

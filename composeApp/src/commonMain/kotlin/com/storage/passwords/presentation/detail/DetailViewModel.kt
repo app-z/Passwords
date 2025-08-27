@@ -8,6 +8,7 @@ import com.storage.passwords.models.mapToDomain
 import com.storage.passwords.models.mapToEntity
 import com.storage.passwords.repository.DispatchersRepository
 import com.storage.passwords.repository.LocalRepository
+import com.storage.passwords.usecase.SendRequestToServerUseCase
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,9 @@ import passwords.composeapp.generated.resources.unknown_error
 
 class DetailViewModel(
     val password_id: String,
-    val localRepository: LocalRepository,
+    private val localRepository: LocalRepository,
+    private val sendRequestToServerUseCase: SendRequestToServerUseCase
+
 ) : ViewModel() {
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception: Throwable ->
@@ -71,6 +74,7 @@ class DetailViewModel(
             DetailEvent.LoadPasswordDetail -> {}
             is DetailEvent.SavePasswordDetail -> {
                 saveNewPassword(events.passwordItem)
+                sendPasswordToServer(events.passwordItem)
             }
 
             is DetailEvent.UpdatePasswordDetail -> {
@@ -88,6 +92,7 @@ class DetailViewModel(
     private fun deletePassword(passwordItem: PasswordItem) {
         viewModelScope.launch(DispatchersRepository.io() + coroutineExceptionHandler) {
             localRepository.deletePassword(passwordItem.mapToEntity())
+            _effect.emit(DetailEffect.DeletePasswordSuccess)
         }
     }
 
@@ -129,7 +134,28 @@ class DetailViewModel(
                     )
                 )
             }
+        }
+    }
 
+
+    fun sendPasswordToServer(passwordItem: PasswordItem) {
+        viewModelScope.launch {
+            sendRequestToServerUseCase.sendPasswordToServer(
+                passwordItem, onRequestSuccess = {
+                    viewModelScope.launch {
+                        _effect.emit(DetailEffect.RequestSuccess)
+                    }
+                },
+                onLoadError = {
+                    viewModelScope.launch {
+                        _effect.emit(
+                            DetailEffect.LoadError(
+                                UiText.StaticString(it ?: "Unknown Error")
+                            )
+                        )
+                    }
+                }
+            )
         }
     }
 

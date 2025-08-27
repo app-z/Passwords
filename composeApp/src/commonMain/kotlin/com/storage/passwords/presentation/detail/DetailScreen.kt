@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -12,7 +13,6 @@ import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.utils.YesNoAlertDialog
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -27,11 +27,10 @@ import passwords.composeapp.generated.resources.save
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun DetailScreen(
-    onBackHandler: () -> Unit,
     paddingValues: PaddingValues,
     password_id: String,
-    onSaveClick: (PasswordItem) -> Unit,
-    onDeleteClick: (PasswordItem) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    onBackHandler: () -> Unit
 ) {
 
     val viewModel =
@@ -52,15 +51,27 @@ fun DetailScreen(
         viewModel.effect.collect {
             when (it) {
                 is DetailEffect.LoadError -> {
+                    snackbarHostState.showSnackbar(
+                        it.message.asStringForSuspend()
+                    )
                     println("DetailEffect.LoadError")
                 }
 
-                DetailEffect.LoadSuccess -> {
+                is DetailEffect.LoadSuccess -> {
                     println("DetailEffect.LoadSuccess")
                 }
 
-                DetailEffect.Loading -> {
+                is DetailEffect.Loading -> {
                     println("DetailEffect.Loading")
+                }
+
+                is DetailEffect.RequestSuccess -> {
+                    snackbarHostState.showSnackbar("RequestSuccess")
+                    println("DetailEffect.RequestSuccess")
+                }
+
+                is DetailEffect.DeletePasswordSuccess -> {
+                    onBackHandler.invoke()
                 }
             }
         }
@@ -77,6 +88,7 @@ fun DetailScreen(
             .fillMaxSize()
     ) {
         DetailScreenImpl(
+            password_id = password_id,
             nameInput = passwordItem.name,
             passwordInput = passwordItem.password,
             noteInput = passwordItem.note,
@@ -102,7 +114,6 @@ fun DetailScreen(
                 )
             },
             onSaveClick = {
-                onSaveClick.invoke(passwordItem)
                 viewModel.handleEvent(
                     DetailEvent.SavePasswordDetail(passwordItem)
                 )
@@ -117,7 +128,7 @@ fun DetailScreen(
         YesNoAlertDialog(
             showDialog = true,
             onConfirm = {
-                onDeleteClick.invoke(passwordItem)
+                isConfirmDeleteAlertDialog = false
                 viewModel.handleEvent(
                     DetailEvent.DeleteePasswordDetail(passwordItem)
                 )
@@ -136,6 +147,7 @@ fun DetailScreenImpl(
     nameInput: String,
     passwordInput: String,
     noteInput: String,
+    password_id: String,
     onSaveClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onChangeName: (String) -> Unit,
@@ -184,13 +196,16 @@ fun DetailScreenImpl(
         ) {
             Text(stringResource(Res.string.save))
         }
-        Button(
-            modifier = Modifier
-                .padding(16.dp),
-            onClick = onDeleteClick
 
-        ) {
-            Text(stringResource(Res.string.delete))
+        if (password_id != "-1") {
+            Button(
+                modifier = Modifier
+                    .padding(16.dp),
+                onClick = onDeleteClick
+
+            ) {
+                Text(stringResource(Res.string.delete))
+            }
         }
     }
 
@@ -203,10 +218,11 @@ fun PreviewDetailScreenImpl() {
         nameInput = "Passw",
         passwordInput = "121ewe#@323",
         noteInput = "I save it !!!",
+        password_id = "",
         {},
         {},
         {},
         {},
-        {}
+        {},
     )
 }
