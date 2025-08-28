@@ -4,7 +4,7 @@ data class PasswordItem(
     val id: String = "-1",
     val name: String = "",
     val password: String = "",
-    val saggastion: String = "",
+    val suggestion: String = "",
     val note: String = "",
     val datetime: String = ""
 )

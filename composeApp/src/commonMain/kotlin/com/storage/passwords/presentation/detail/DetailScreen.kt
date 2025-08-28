@@ -13,6 +13,7 @@ import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.storage.passwords.presentation.passwords.PasswordsState
 import com.storage.passwords.utils.YesNoAlertDialog
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -40,7 +41,7 @@ fun DetailScreen(
             }
         )
 
-    val state = viewModel.state.collectAsStateWithLifecycle()
+    val state = viewModel.viewState.collectAsStateWithLifecycle()
 
     val passwordItem = state.value.passwordItem
 
@@ -83,7 +84,7 @@ fun DetailScreen(
 
     BackHandler(enabled = true) {
         println("BackHandler")
-        viewModel.handleEvent(DetailEvent.NavigationBack)
+        viewModel.setEvent(DetailEvent.NavigationBack)
     }
 
     Column(
@@ -96,29 +97,37 @@ fun DetailScreen(
             nameInput = passwordItem.name,
             passwordInput = passwordItem.password,
             noteInput = passwordItem.note,
+            suggestInput = passwordItem.suggestion,
             onChangeName = {
-                viewModel.handleEvent(
+                viewModel.setEvent(
                     DetailEvent.UpdatePasswordDetail(
                         passwordItem.copy(name = it)
                     )
                 )
             },
             onChangePassword = {
-                viewModel.handleEvent(
+                viewModel.setEvent(
                     DetailEvent.UpdatePasswordDetail(
                         passwordItem.copy(password = it)
                     )
                 )
             },
             onChangeNote = {
-                viewModel.handleEvent(
+                viewModel.setEvent(
                     DetailEvent.UpdatePasswordDetail(
                         passwordItem.copy(note = it)
                     )
                 )
             },
+            onChangeSuggast = {
+                viewModel.setEvent(
+                    DetailEvent.UpdatePasswordDetail(
+                        passwordItem.copy(suggestion = it)
+                    )
+                )
+            },
             onSaveClick = {
-                viewModel.handleEvent(
+                viewModel.setEvent(
                     DetailEvent.SavePasswordDetail(passwordItem)
                 )
             },
@@ -133,7 +142,7 @@ fun DetailScreen(
             showDialog = true,
             onConfirm = {
                 isConfirmDeleteAlertDialog = false
-                viewModel.handleEvent(
+                viewModel.setEvent(
                     DetailEvent.DeleteePasswordDetail(passwordItem)
                 )
             },
@@ -151,12 +160,14 @@ fun DetailScreenImpl(
     nameInput: String,
     passwordInput: String,
     noteInput: String,
+    suggestInput: String,
     password_id: String,
     onSaveClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onChangeName: (String) -> Unit,
     onChangePassword: (String) -> Unit,
-    onChangeNote: (String) -> Unit
+    onChangeNote: (String) -> Unit,
+    onChangeSuggast: (String) -> Unit
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         OutlinedTextField(
@@ -184,6 +195,16 @@ fun DetailScreenImpl(
             value = noteInput,
             onValueChange = { newText -> onChangeNote(newText) },
             label = { Text("Note") },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        OutlinedTextField(
+            readOnly = false,
+            value = suggestInput,
+            onValueChange = { newText -> onChangeSuggast(newText) },
+            label = { Text("Suggest") },
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -217,16 +238,36 @@ fun DetailScreenImpl(
 
 @Preview
 @Composable
-fun PreviewDetailScreenImpl() {
+fun PreviewDetailScreenImpl1() {
     DetailScreenImpl(
         nameInput = "Passw",
         passwordInput = "121ewe#@323",
         noteInput = "I save it !!!",
+        suggestInput = "What name of you dog?",
         password_id = "",
         {},
         {},
         {},
         {},
         {},
+        {}
+    )
+}
+
+@Preview
+@Composable
+fun PreviewDetailScreenImpl2() {
+    DetailScreenImpl(
+        nameInput = "Passw",
+        passwordInput = "121ewe#@323",
+        noteInput = "I save it !!!",
+        suggestInput = "What name of you dog?",
+        password_id = "-1",
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
     )
 }

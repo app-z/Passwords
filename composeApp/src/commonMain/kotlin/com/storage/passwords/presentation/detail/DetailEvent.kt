@@ -1,8 +1,9 @@
 package com.storage.passwords.presentation.detail
 
 import com.storage.passwords.models.PasswordItem
+import com.storage.passwords.utils.ViewEvent
 
-sealed interface DetailEvent {
+sealed interface DetailEvent : ViewEvent {
     data object LoadPasswordDetail : DetailEvent
     data class SavePasswordDetail(val passwordItem: PasswordItem) : DetailEvent
 

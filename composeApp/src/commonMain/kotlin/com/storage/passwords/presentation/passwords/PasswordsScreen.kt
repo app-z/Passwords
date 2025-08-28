@@ -264,7 +264,7 @@ fun PasswordRowPreview() {
             id = "100",
             name = "Email",
             password = "safsfdsfsdf",
-            saggastion = "What u favorite color?",
+            suggestion = "What u favorite color?",
             note = "I remember bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
             datetime = "10.10.2025"
         ),

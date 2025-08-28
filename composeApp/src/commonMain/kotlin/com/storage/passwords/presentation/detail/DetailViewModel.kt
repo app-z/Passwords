@@ -1,91 +1,83 @@
 package com.storage.passwords.presentation.detail
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.spacex.utils.UiText
 import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.models.mapToDomain
 import com.storage.passwords.models.mapToEntity
-import com.storage.passwords.presentation.passwords.PasswordsEffect
+import com.storage.passwords.presentation.passwords.PasswordsEvent
 import com.storage.passwords.repository.DispatchersRepository
 import com.storage.passwords.repository.LocalRepository
 import com.storage.passwords.usecase.SendRequestToServerUseCase
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.storage.passwords.utils.BaseViewModel
 import kotlinx.coroutines.launch
 import passwords.composeapp.generated.resources.Res
 import passwords.composeapp.generated.resources.unknown_error
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class DetailViewModel(
     val password_id: String,
     private val localRepository: LocalRepository,
     private val sendRequestToServerUseCase: SendRequestToServerUseCase
+) : BaseViewModel<DetailEvent, DetailState, DetailEffect>() {
 
-) : ViewModel() {
-
-    val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception: Throwable ->
-        viewModelScope.launch {
-            _effect.emit(
-                DetailEffect.LoadError(
-                    if (exception.message != null)
-                        UiText.StaticString(exception.message!!)
-                    else
-                        UiText.StringResource(Res.string.unknown_error)
-                )
-            )
-        }
+    override fun onCoroutineException(message: UiText) {
+        setEffect { DetailEffect.LoadError(message) }
     }
 
-    private val _state = MutableStateFlow(DetailState())
-    val state = _state.asStateFlow()
+    override fun setInitialState(): DetailState {
+        return DetailState()
+    }
 
-    private val _effect = MutableSharedFlow<DetailEffect>()
-    val effect = _effect.asSharedFlow()
+    override fun runInitialEvent() {
+        setEvent(DetailEvent.LoadPasswordDetail)
+    }
 
     init {
         if (password_id != "-1") {
             loadDetail()
             println("password_id = $password_id")
         } else {
-            // New password
-            viewModelScope.launch(DispatchersRepository.main() + coroutineExceptionHandler) {
-                _state.emit(
-                    DetailState(
-                        passwordItem = PasswordItem(
-                            id = "-1",
-                            name = "Password",
-                            password = "********",
-                            saggastion = "Name of dog",
-                            note = "I save it!",
-                            datetime = "10.12.2020"
-                        ),
-                        isViewOnly = false
-                    )
+            createNewPassword()
+        }
+    }
+
+    fun createNewPassword() {
+        // New password
+        defaultViewModelScope.launch(DispatchersRepository.main() + coroutineExceptionHandler) {
+            setState {
+                DetailState(
+                    passwordItem = PasswordItem(
+                        id = "-1",
+                        name = "Password mail",
+                        password = Uuid.random().toString().take(16),
+                        suggestion = "What the name of you dog?",
+                        note = "I save it in note on 5th page!",
+                        datetime = "10.12.2020"
+                    ),
+                    isViewOnly = false
                 )
             }
         }
     }
 
-    fun handleEvent(events: DetailEvent) {
-        when (events) {
+    override fun handleEvents(event: DetailEvent) {
+        when (event) {
             DetailEvent.LoadPasswordDetail -> {}
             is DetailEvent.SavePasswordDetail -> {
-                saveNewPassword(events.passwordItem)
-                sendPasswordToServer(events.passwordItem)
+                saveNewPassword(event.passwordItem)
+                sendPasswordToServer(event.passwordItem)
             }
 
             is DetailEvent.UpdatePasswordDetail -> {
-                _state.update {
-                    it.copy(passwordItem = events.passwordItem)
+                setState {
+                    copy(passwordItem = event.passwordItem)
                 }
             }
 
             is DetailEvent.DeleteePasswordDetail -> {
-                deletePassword(events.passwordItem)
+                deletePassword(event.passwordItem)
             }
 
             DetailEvent.NavigationBack -> {
@@ -95,14 +87,16 @@ class DetailViewModel(
     }
 
     private fun deletePassword(passwordItem: PasswordItem) {
-        viewModelScope.launch(DispatchersRepository.io() + coroutineExceptionHandler) {
+        defaultViewModelScope.launch(DispatchersRepository.io()) {
             localRepository.deletePassword(passwordItem.mapToEntity())
-            _effect.emit(DetailEffect.DeletePasswordSuccess)
+            setEffect {
+                DetailEffect.DeletePasswordSuccess
+            }
         }
     }
 
     private fun saveNewPassword(passwordItem: PasswordItem) {
-        viewModelScope.launch(DispatchersRepository.io() + coroutineExceptionHandler) {
+        defaultViewModelScope.launch(DispatchersRepository.io()) {
             if (passwordItem.id != "-1") {
                 localRepository.updatePassword(
                     passwordItem.mapToEntity()
@@ -120,54 +114,56 @@ class DetailViewModel(
 
     fun loadDetail() {
 
-        viewModelScope.launch(coroutineExceptionHandler) {
-            _effect.emit(DetailEffect.Loading)
+        defaultViewModelScope.launch(coroutineExceptionHandler) {
+            setEffect { DetailEffect.Loading }
 
             try {
                 val detail = localRepository.getPasswords(password_id)
-                _state.emit(
+                setState {
                     DetailState(
                         passwordItem = detail.mapToDomain(),
                         isViewOnly = false
                     )
-                )
-                _effect.emit(DetailEffect.LoadSuccess)
+                }
+                setEffect { DetailEffect.LoadSuccess }
             } catch (ex: Exception) {
-                _effect.emit(
+                setEffect {
                     DetailEffect.LoadError(
-                        UiText.StaticString(ex.message ?: "Unknown Error")
+                        if (ex.message != null)
+                            UiText.StaticString(ex.message!!)
+                        else
+                            UiText.StringResource(Res.string.unknown_error)
                     )
-                )
+                }
             }
         }
     }
 
 
     fun sendPasswordToServer(passwordItem: PasswordItem) {
-        viewModelScope.launch {
+        defaultViewModelScope.launch {
             sendRequestToServerUseCase.sendPasswordToServer(
                 passwordItem, onRequestSuccess = {
-                    viewModelScope.launch {
-                        _effect.emit(DetailEffect.RequestSuccess)
-                    }
+                    setEffect { DetailEffect.RequestSuccess }
                 },
                 onLoadError = {
-                    viewModelScope.launch {
-                        _effect.emit(
-                            DetailEffect.LoadError(
-                                UiText.StaticString(it ?: "Unknown Error")
-                            )
+                    setEffect {
+                        DetailEffect.LoadError(
+                            if (it.isNullOrEmpty()) {
+                                UiText.StringResource(Res.string.unknown_error)
+                            } else {
+                                UiText.StaticString(it)
+                            }
                         )
                     }
+
                 }
             )
         }
     }
 
     private fun navigateBack() {
-        viewModelScope.launch {
-            _effect.emit(DetailEffect.NavigationBack)
-        }
+        setEffect { DetailEffect.NavigationBack }
     }
 
 }
