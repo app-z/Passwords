@@ -31,7 +31,7 @@ sqlite = "2.5.2"
 # BuildConfig
 buildkonfig = "0.17.1"
 
-
+google-services = "4.4.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -105,3 +105,5 @@ buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig"
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "androidx-room" }
+
+gms = { id = "com.google.gms.google-services",  version.ref = "google-services"}

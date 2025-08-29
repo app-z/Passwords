@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.gms)
 }
 
 kotlin {
@@ -20,9 +21,16 @@ kotlin {
 
     jvm()
 
+    listOf(iosX64(),iosArm64(),iosSimulatorArm64()).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            export("io.github.mirzemehdi:kmpnotifier:1.6.0")
+
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
-            // put your Multiplatform dependencies here
+            api("io.github.mirzemehdi:kmpnotifier:1.6.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

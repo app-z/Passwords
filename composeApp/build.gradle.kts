@@ -71,7 +71,6 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network)
             implementation(libs.navigation.compose)
-//            implementation(libs.screen.size)
 
 
 
@@ -81,6 +80,8 @@ kotlin {
             implementation(libs.koin.composeVM)
             implementation(libs.ktor.logging)
             implementation("org.jetbrains.compose.ui:ui-backhandler:1.8.2")
+
+            implementation(project(":shared"))
 
         }
 

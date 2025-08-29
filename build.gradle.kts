@@ -11,4 +11,5 @@ plugins {
     alias(libs.plugins.room) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.buildkonfig) apply false
+    alias(libs.plugins.gms) apply false
 }
