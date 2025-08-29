@@ -22,7 +22,6 @@ import passwords.composeapp.generated.resources.title_settings
 fun BurgerMenu(
     onAboutItem: () -> Unit,
     onAddItem: () -> Unit,
-    onReloadItem: () -> Unit,
     onSettingsItem: () -> Unit,
     drawerState: DrawerState,
     content: @Composable () -> Unit
@@ -67,17 +66,6 @@ fun BurgerMenu(
                         scope.launch { drawerState.close() }
                     }
                 )
-                NavigationDrawerItem(
-                    label = {
-                        Text(text = stringResource(Res.string.reload))
-                    },
-                    selected = false,
-                    onClick = {
-                        onReloadItem.invoke()
-                        scope.launch { drawerState.close() }
-                    }
-                )
-
             }
         }
     ) {

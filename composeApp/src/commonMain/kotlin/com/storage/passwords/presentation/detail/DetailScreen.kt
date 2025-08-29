@@ -1,11 +1,18 @@
 package com.storage.passwords.presentation.detail
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -13,12 +20,15 @@ import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.storage.passwords.presentation.menu.navigation.Screen
+import com.storage.passwords.presentation.passwords.PasswordsEvent
 import com.storage.passwords.presentation.passwords.PasswordsState
 import com.storage.passwords.utils.YesNoAlertDialog
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import passwords.composeapp.generated.resources.Detail
 import passwords.composeapp.generated.resources.Res
 import passwords.composeapp.generated.resources.delete
 import passwords.composeapp.generated.resources.delete_message
@@ -28,7 +38,6 @@ import passwords.composeapp.generated.resources.save
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun DetailScreen(
-    paddingValues: PaddingValues,
     password_id: String,
     snackbarHostState: SnackbarHostState,
     onBackHandler: () -> Unit
@@ -87,71 +96,94 @@ fun DetailScreen(
         viewModel.setEvent(DetailEvent.NavigationBack)
     }
 
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize()
-    ) {
-        DetailScreenImpl(
-            password_id = password_id,
-            nameInput = passwordItem.name,
-            passwordInput = passwordItem.password,
-            noteInput = passwordItem.note,
-            suggestInput = passwordItem.suggestion,
-            onChangeName = {
-                viewModel.setEvent(
-                    DetailEvent.UpdatePasswordDetail(
-                        passwordItem.copy(name = it)
-                    )
-                )
-            },
-            onChangePassword = {
-                viewModel.setEvent(
-                    DetailEvent.UpdatePasswordDetail(
-                        passwordItem.copy(password = it)
-                    )
-                )
-            },
-            onChangeNote = {
-                viewModel.setEvent(
-                    DetailEvent.UpdatePasswordDetail(
-                        passwordItem.copy(note = it)
-                    )
-                )
-            },
-            onChangeSuggast = {
-                viewModel.setEvent(
-                    DetailEvent.UpdatePasswordDetail(
-                        passwordItem.copy(suggestion = it)
-                    )
-                )
-            },
-            onSaveClick = {
-                viewModel.setEvent(
-                    DetailEvent.SavePasswordDetail(passwordItem)
-                )
-            },
-            onDeleteClick = {
-                isConfirmDeleteAlertDialog = true
-            }
-        )
-    }
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.Detail)) },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        viewModel.setEvent(DetailEvent.NavigationBack)
+                    }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "ArrowBack"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
 
-    if (isConfirmDeleteAlertDialog) {
-        YesNoAlertDialog(
-            showDialog = true,
-            onConfirm = {
-                isConfirmDeleteAlertDialog = false
-                viewModel.setEvent(
-                    DetailEvent.DeleteePasswordDetail(passwordItem)
-                )
-            },
-            onDismiss = {
-                isConfirmDeleteAlertDialog = false
-            },
-            title = Res.string.delete,
-            message = Res.string.delete_message
-        )
+        Column(
+            modifier = Modifier
+//                .padding(16.dp)
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
+            DetailScreenImpl(
+                password_id = password_id,
+                nameInput = passwordItem.name,
+                passwordInput = passwordItem.password,
+                noteInput = passwordItem.note,
+                suggestInput = passwordItem.suggestion,
+                onChangeName = {
+                    viewModel.setEvent(
+                        DetailEvent.UpdatePasswordDetail(
+                            passwordItem.copy(name = it)
+                        )
+                    )
+                },
+                onChangePassword = {
+                    viewModel.setEvent(
+                        DetailEvent.UpdatePasswordDetail(
+                            passwordItem.copy(password = it)
+                        )
+                    )
+                },
+                onChangeNote = {
+                    viewModel.setEvent(
+                        DetailEvent.UpdatePasswordDetail(
+                            passwordItem.copy(note = it)
+                        )
+                    )
+                },
+                onChangeSuggast = {
+                    viewModel.setEvent(
+                        DetailEvent.UpdatePasswordDetail(
+                            passwordItem.copy(suggestion = it)
+                        )
+                    )
+                },
+                onSaveClick = {
+                    viewModel.setEvent(
+                        DetailEvent.SavePasswordDetail(passwordItem)
+                    )
+                },
+                onDeleteClick = {
+                    isConfirmDeleteAlertDialog = true
+                }
+            )
+        }
+
+        if (isConfirmDeleteAlertDialog) {
+            YesNoAlertDialog(
+                showDialog = true,
+                onConfirm = {
+                    isConfirmDeleteAlertDialog = false
+                    viewModel.setEvent(
+                        DetailEvent.DeleteePasswordDetail(passwordItem)
+                    )
+                },
+                onDismiss = {
+                    isConfirmDeleteAlertDialog = false
+                },
+                title = Res.string.delete,
+                message = Res.string.delete_message
+            )
+        }
     }
 }
 

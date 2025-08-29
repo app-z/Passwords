@@ -19,8 +19,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun AboutScreen(onStartClick: () -> Unit,
-                paddingValues: PaddingValues) {
+fun AboutScreen(onStartClick: () -> Unit) {
 
     BackHandler(enabled = true) {
         println("BackHandler")
@@ -57,7 +56,6 @@ fun PreviewWelcomeScreen() {
         color = MaterialTheme.colorScheme.background
     ) {
         AboutScreen(
-            paddingValues = PaddingValues(),
             onStartClick = {}
         )
     }

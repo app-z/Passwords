@@ -27,10 +27,6 @@ fun NavigationApplication(
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    val navigateViewModel = koinViewModel<NavigationViewModel>(
-        parameters = { parametersOf(navController) }
-    )
-
     val snackbarHostState = remember { SnackbarHostState() }
 
     BurgerMenu(
@@ -40,93 +36,65 @@ fun NavigationApplication(
                 val jsonFalconInfo = Json.encodeToString("-1")
                 set(PASSWORD_ID_PARAM, jsonFalconInfo)
             }
-            navigateViewModel.navigateToRoute(Screen.Detail.route)
+            navController.navigate(Screen.Detail.route)
         },
         onAboutItem = {
-            navigateViewModel.navigateToRoute(Screen.About.route)
-        },
-        onReloadItem = {
-            navigateViewModel.reloadPasswords()
+            navController.navigate(Screen.About.route)
         },
         onSettingsItem = {
-            navigateViewModel.navigateToRoute(Screen.Settings.route)
+            navController.navigate(Screen.Settings.route)
         }
     ) {
 
-        Scaffold(
-            snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
-            },
-            topBar = {
-                ApplicationTopBar(
-                    navController = navController,
-                    drawerState = drawerState
-                )
-            },
-            bottomBar = {
-                ApplicationBottomBar(
-                    navController = navController,
+
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route
+        ) {
+            composable(Screen.Home.route) {
+                PasswordsScreen(
                     drawerState = drawerState,
-                    onReload = {
-                        navigateViewModel.reloadPasswords()
+                    currentItem = { password_id ->
+                        navController.currentBackStackEntry?.savedStateHandle?.apply {
+                            val jsonFalconInfo = Json.encodeToString(password_id)
+                            set(PASSWORD_ID_PARAM, jsonFalconInfo)
+                        }
+                        navController.navigate(Screen.Detail.route)
+                    }
+
+                )
+            }
+            composable(Screen.About.route) {
+                AboutScreen(
+                    onStartClick = {
+                        navController.popBackStack()
                     }
                 )
             }
-        ) { paddingValues ->
-
-            NavHost(
-                navController = navController,
-                startDestination = Screen.Home.route,
-                modifier = Modifier.padding(paddingValues)
+            composable(
+                route = Screen.Detail.route,
             ) {
-                composable(Screen.Home.route) {
-                    PasswordsScreen(
-                        snackbarHostState = snackbarHostState,
-                        paddingValues = paddingValues,
-                        currentItem = { password_id ->
-                            navController.currentBackStackEntry?.savedStateHandle?.apply {
-                                val jsonFalconInfo = Json.encodeToString(password_id)
-                                set(PASSWORD_ID_PARAM, jsonFalconInfo)
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>(PASSWORD_ID_PARAM)
+                    ?.let { jsonId ->
+                        val password_id = Json.decodeFromString<String>(jsonId)
+                        DetailScreen(
+                            password_id = password_id,
+                            snackbarHostState = snackbarHostState,
+                            onBackHandler = {
+                                navController.popBackStack()
                             }
-                            navigateViewModel.navigateToRoute(Screen.Detail.route)
-                        }
-
-                    )
-                }
-                composable(Screen.About.route) {
-                    AboutScreen(
-                        paddingValues = paddingValues,
-                        onStartClick = {
-                            navigateViewModel.popBackStackToHome()
-                        }
-                    )
-                }
-                composable(
-                    route = Screen.Detail.route,
-                ) {
-                    navController.previousBackStackEntry?.savedStateHandle?.get<String>(PASSWORD_ID_PARAM)
-                        ?.let { jsonId ->
-                            val password_id = Json.decodeFromString<String>(jsonId)
-                            DetailScreen(
-                                password_id = password_id,
-                                paddingValues = paddingValues,
-                                snackbarHostState = snackbarHostState,
-                                onBackHandler = {
-                                    navigateViewModel.popBackStackToHome()
-                                }
-                            )
-                        }
-                }
-                composable(Screen.Settings.route) {
-                    SettingsScreen(
-                        paddingValues = paddingValues,
-                        rootNavController = navController,
-                        snackBarHostState = snackbarHostState,
-                        viewModel = settingViewModel
-                    )
-                }
-
+                        )
+                    }
             }
+            composable(Screen.Settings.route) {
+                SettingsScreen(
+                    viewModel = settingViewModel,
+                    {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
         }
     }
 }

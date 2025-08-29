@@ -1,51 +1,48 @@
 package com.storage.passwords.presentation.passwords
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Shower
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
-import coil3.compose.AsyncImage
 import com.spacex.utils.UiText
 import com.storage.passwords.models.PasswordItem
 import com.storage.passwords.presentation.shimmerEffect
 import com.storage.passwords.repository.DispatchersRepository
 import com.storage.passwords.utils.ErrorMessageScreen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import passwords.composeapp.generated.resources.Res
+import passwords.composeapp.generated.resources.home
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordsScreen(
-    paddingValues: PaddingValues,
-    snackbarHostState: SnackbarHostState,
+    drawerState: DrawerState,
     currentItem: (passsword_id: String) -> Unit,
 ) {
     val viewModel = koinViewModel<PasswordsViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val localLifecycleOwner = LocalLifecycleOwner.current
 
@@ -83,38 +80,70 @@ fun PasswordsScreen(
         }
     }
 
-
-    Column(
-        modifier = Modifier
-//            .background(MaterialTheme.colorScheme.onBackground)
-//            .safeContentPadding()
-//            .padding(paddingValues = paddingValues)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-
-        when {
-
-            state.isLoading -> {
-                PasswordListShimmer()
-            }
-
-            state.passwordItems.isEmpty() -> {
-                ErrorMessageScreen(
-                    UiText.StaticString("No Data"),
-                    onRetry = {
-                        viewModel.handleEvent(PasswordsEvent.LoadPasswords)
-                    })
-            }
-
-            else -> {
-                PasswordsListScreen(
-                    state.passwordItems,
-                    {
-                        viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
-                        println(it)
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.home)) },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        scope.launch {
+                            if (drawerState.isClosed) drawerState.open() else drawerState.close()
+                        }
+                    }) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Menu")
                     }
-                )
+                }
+            )
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(onClick = {
+                    viewModel.handleEvent(PasswordsEvent.LoadPasswordsFromNetwork)
+                }) {
+                    Text("Reload from Internet")
+                }
+            }
+        }
+    ) { paddingValues ->
+
+
+        Column(
+            modifier = Modifier
+//            .safeContentPadding()
+                .padding(paddingValues = paddingValues)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+
+            when {
+
+                state.isLoading -> {
+                    PasswordListShimmer()
+                }
+
+                state.passwordItems.isEmpty() -> {
+                    ErrorMessageScreen(
+                        UiText.StaticString("No Data"),
+                        onRetry = {
+                            viewModel.handleEvent(PasswordsEvent.LoadPasswords)
+                        })
+                }
+
+                else -> {
+                    PasswordsListScreen(
+                        state.passwordItems,
+                        {
+                            viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
+                            println(it)
+                        }
+                    )
+                }
             }
         }
     }
@@ -167,6 +196,7 @@ fun PasswordsListScreen(
 
 }
 
+
 @Composable
 fun PasswordRow(
     modifier: Modifier = Modifier,
@@ -176,25 +206,39 @@ fun PasswordRow(
 
     var showPassword by remember { mutableStateOf(false) }
 
+    var timeLeft by remember { mutableStateOf(0) }
+
+    val navAllow = derivedStateOf { !showPassword }
+
+    LaunchedEffect(key1 = navAllow.value) {
+        while (timeLeft > 0) {
+            delay(350)
+            timeLeft--
+        }
+    }
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(120.dp)
-            .padding(12.dp),
+            .padding(16.dp)
+            .height(120.dp),
 
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
         ),
         shape = RoundedCornerShape(8.dp),
     ) {
-
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
+                .clickable {
+                    if (timeLeft <=  0) {
+                        onClick.invoke(passwordItem)
+                    }
+                },
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Column(
-                modifier = Modifier.weight(0.9f)
-                    .clickable { onClick.invoke(passwordItem) },
+                modifier = Modifier
+                    .weight(0.9f)
             ) {
 
                 Row(
@@ -241,6 +285,7 @@ fun PasswordRow(
                             } while (event.changes.any { it.pressed })
 
                             showPassword = false
+                            timeLeft = 1
                         }
                     },
                     imageVector = if (showPassword) Icons.Filled.Visibility else Icons.Outlined.Visibility,

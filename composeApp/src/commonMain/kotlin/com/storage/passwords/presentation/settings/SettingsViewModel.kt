@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.storage.passwords.utils.AppPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,6 +22,9 @@ class SettingsViewModel(
     )
     val state = _state.asStateFlow()
 
+    private val _effect = MutableSharedFlow<SettingsEffect>()
+    val effect = _effect.asSharedFlow()
+
     init {
         currentThemeGet()
     }
@@ -27,6 +32,13 @@ class SettingsViewModel(
     fun handleEvent(event: SettingsEvent) {
         when (event) {
             is SettingsEvent.Theme -> changeThemeMode(event.currentThene)
+            SettingsEvent.NavigationBack -> navigationBack()
+        }
+    }
+
+    private fun navigationBack() {
+        viewModelScope.launch {
+            _effect.emit(SettingsEffect.NavigationBack)
         }
     }
 

@@ -1,48 +1,97 @@
 package com.storage.passwords.presentation.settings
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
+import com.storage.passwords.presentation.detail.DetailEvent
 import com.storage.passwords.utils.Const
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import passwords.composeapp.generated.resources.Detail
 import passwords.composeapp.generated.resources.Res
 import passwords.composeapp.generated.resources.title_settings
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsScreen(
-    rootNavController: NavController,
-    snackBarHostState: SnackbarHostState,
-    paddingValues: PaddingValues,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    onNavigationBack: () -> Unit
 ) {
 
     val state = viewModel.state.collectAsStateWithLifecycle()
 
-    SettingScreenContent(
-        paddingValues = paddingValues,
-        state = state,
-        onChangeTheme = { themeDark ->
-            viewModel.handleEvent(
-                SettingsEvent.Theme(
-                    if (themeDark) {
-                        Const.Theme.DARK_MODE.name
-                    } else {
-                        Const.Theme.LIGHT_MODE.name
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val effect = viewModel.effect.flowWithLifecycle(
+        lifecycle = lifecycleOwner.lifecycle,
+        minActiveState = Lifecycle.State.STARTED
+        )
+
+    LaunchedEffect(key1 = lifecycleOwner) {
+        effect.collect {
+            when (it) {
+                SettingsEffect.NavigationBack -> onNavigationBack()
+            }
+        }
+    }
+
+
+    BackHandler(enabled = true) {
+        println("BackHandler")
+        viewModel.handleEvent(SettingsEvent.NavigationBack)
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.title_settings)) },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        viewModel.handleEvent(SettingsEvent.NavigationBack)
+                    }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "ArrowBack"
+                        )
                     }
-                )
+                }
             )
         }
-    )
+    ) { paddingValues ->
+
+        SettingScreenContent(
+            paddingValues = paddingValues,
+            state = state,
+            onChangeTheme = { themeDark ->
+                viewModel.handleEvent(
+                    SettingsEvent.Theme(
+                        if (themeDark) {
+                            Const.Theme.DARK_MODE.name
+                        } else {
+                            Const.Theme.LIGHT_MODE.name
+                        }
+                    )
+                )
+            }
+        )
+    }
 }
 
 
@@ -53,7 +102,8 @@ fun SettingScreenContent(
     onChangeTheme: (themeDark: Boolean) -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier
+            .padding(paddingValues)
             .fillMaxWidth()
     ) {
 

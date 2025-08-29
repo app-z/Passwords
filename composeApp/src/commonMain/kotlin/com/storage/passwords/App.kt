@@ -14,9 +14,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 @Preview
 fun App() {
-//    MaterialTheme {
-//        NavigationApplication()
-//    }
 
     val settingViewModel = koinViewModel<SettingsViewModel>()
     val currentTheme by settingViewModel.state.collectAsStateWithLifecycle()
