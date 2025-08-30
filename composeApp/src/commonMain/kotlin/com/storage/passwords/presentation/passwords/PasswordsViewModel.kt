@@ -103,7 +103,7 @@ class PasswordsViewModel(
                 }
                 viewModelScope.launch {
                     _state.value.isLoading = false
-                    _effect.emit(PasswordsEffect.LoadSuccess)
+                    _effect.emit(PasswordsEffect.LoadFromDBSuccess)
                 }
 
             },

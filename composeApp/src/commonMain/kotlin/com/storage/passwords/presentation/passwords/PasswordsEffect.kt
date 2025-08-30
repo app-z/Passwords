@@ -4,6 +4,7 @@ import com.spacex.utils.UiText
 
 sealed interface PasswordsEffect {
     data object LoadSuccess : PasswordsEffect
+    data object LoadFromDBSuccess: PasswordsEffect
     data class LoadError(val message: UiText) : PasswordsEffect
     data class NavigateToDetail(val itemId: String) : PasswordsEffect
 

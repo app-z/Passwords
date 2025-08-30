@@ -56,21 +56,23 @@ fun PasswordsScreen(
 
     LaunchedEffect(key1 = localLifecycleOwner.lifecycle) {
         effect.collect {
-            when (it) {
-                is PasswordsEffect.LoadError -> {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(it.message.asStringForSuspend())
+            scope.launch {
+                when (it) {
+                    is PasswordsEffect.LoadError -> {
+                            snackbarHostState.showSnackbar(it.message.asStringForSuspend())
                     }
-                }
 
-                PasswordsEffect.LoadSuccess -> {
-                    scope.launch {
+                    PasswordsEffect.LoadSuccess -> {
                         snackbarHostState.showSnackbar("Loading items was successful")
                     }
-                }
 
-                is PasswordsEffect.NavigateToDetail -> {
-                    currentItem.invoke(it.itemId)
+                    is PasswordsEffect.NavigateToDetail -> {
+                        currentItem.invoke(it.itemId)
+                    }
+
+                    PasswordsEffect.LoadFromDBSuccess -> {
+                        snackbarHostState.showSnackbar("Loading items from DB was successful")
+                    }
                 }
             }
         }

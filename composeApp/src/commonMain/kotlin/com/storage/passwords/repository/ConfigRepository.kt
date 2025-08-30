@@ -15,7 +15,9 @@ class ConfigRepository {
 
     companion object Companion {
         private const val BASE_URL_RELEASE = "https://0.0.0.0:8080"
-        private const val BASE_URL_DEBUG = "http://192.168.1.215:8080"
+//        private const val BASE_URL_DEBUG = "http://192.168.1.215:8080"
+
+        private const val BASE_URL_DEBUG = "http://192.168.231.7:8080"
     }
 
 }

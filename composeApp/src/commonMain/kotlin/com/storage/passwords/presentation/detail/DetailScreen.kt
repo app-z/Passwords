@@ -18,8 +18,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.storage.passwords.presentation.menu.navigation.Screen
 import com.storage.passwords.presentation.passwords.PasswordsEvent
 import com.storage.passwords.presentation.passwords.PasswordsState
@@ -62,8 +64,14 @@ fun DetailScreen(
     var isConfirmDeleteAlertDialog by remember { mutableStateOf(false) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(key1 = lifecycleOwner) {
-        viewModel.effect.collect {
+    val effect = viewModel.effect
+        .flowWithLifecycle(
+            lifecycle = lifecycleOwner.lifecycle,
+            minActiveState = Lifecycle.State.STARTED
+        )
+
+    LaunchedEffect(key1 = lifecycleOwner.lifecycle) {
+        effect.collect {
             when (it) {
                 is DetailEffect.LoadError -> {
                     scope.launch {

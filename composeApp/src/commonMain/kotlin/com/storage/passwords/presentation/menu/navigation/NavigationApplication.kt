@@ -27,8 +27,6 @@ fun NavigationApplication(
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
     BurgerMenu(
         drawerState = drawerState,
         onAddItem = {

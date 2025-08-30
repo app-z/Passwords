@@ -13,7 +13,6 @@ class AppPreferences(
 ) {
 
     private val themeKey = stringPreferencesKey("com.spacex/theme")
-    private val rowModeKey = stringPreferencesKey("com.spacex/rowmode")
 
 
     suspend fun getTheme() = dataStore.data.map { preferences ->
@@ -22,24 +21,6 @@ class AppPreferences(
 
     suspend fun changeThemeMode(value: String) = dataStore.edit { preferences ->
         preferences[themeKey] = value
-    }
-
-    suspend fun setRowMode(rowMode: String) = dataStore.edit { preferences ->
-        preferences[rowModeKey] = rowMode
-    }
-
-    suspend fun getRowMode() = dataStore.data.map { preferences ->
-        preferences[rowModeKey] ?: CARD_MODE
-    }.first()
-
-    fun getRowModeFlow() = dataStore.data.map { preferences ->
-        preferences[rowModeKey] ?: CARD_MODE
-    }
-
-
-    companion object {
-        const val ROW_MODE = "ROW_MODE"
-        const val CARD_MODE = "CARD_MODE"
     }
 
 }
