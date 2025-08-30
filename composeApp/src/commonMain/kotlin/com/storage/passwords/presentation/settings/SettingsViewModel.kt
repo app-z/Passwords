@@ -1,35 +1,31 @@
 package com.storage.passwords.presentation.settings
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.spacex.utils.UiText
 import com.storage.passwords.utils.AppPreferences
+import com.storage.passwords.utils.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class SettingsViewModel(
     private val appPreferences: AppPreferences,
-) : ViewModel() {
+) : BaseViewModel<SettingsEvent, SettingsState, SettingsEffect>(SettingsState()) {
 
-    private val _state: MutableStateFlow<SettingsState> = MutableStateFlow(
-        SettingsState()
-    )
-    val state = _state.asStateFlow()
 
-    private val _effect = MutableSharedFlow<SettingsEffect>()
-    val effect = _effect.asSharedFlow()
+    override fun onCoroutineException(message: UiText) {
+        setEffect {
+            SettingsEffect.CoroutineError(message)
+        }
+    }
 
-    init {
+    override fun runInitialEvent() {
         currentThemeGet()
     }
 
-    fun handleEvent(event: SettingsEvent) {
+    override fun handleEvents(event: SettingsEvent) {
         when (event) {
             is SettingsEvent.Theme -> changeThemeMode(event.currentThene)
             SettingsEvent.NavigationBack -> navigationBack()
@@ -37,21 +33,29 @@ class SettingsViewModel(
     }
 
     private fun navigationBack() {
-        viewModelScope.launch {
-            _effect.emit(SettingsEffect.NavigationBack)
+        setEffect {
+            SettingsEffect.NavigationBack
         }
     }
 
-    private fun currentThemeGet() = runBlocking {
-        _state.emit(
-            state.value.copy(currentTheme = appPreferences.getTheme())
-        )
+    private val mutex = Mutex()
+
+    private fun currentThemeGet() {
+        defaultViewModelScope.launch {
+            val currentTheme =
+                mutex.withLock {
+                    appPreferences.getTheme()
+                }
+            setState {
+                copy(currentTheme = currentTheme)
+            }
+        }
     }
 
     private fun changeThemeMode(mode: String) = viewModelScope.launch(Dispatchers.IO) {
         appPreferences.changeThemeMode(mode)
-        _state.update {
-            it.copy(currentTheme = mode)
+        setState {
+            copy(currentTheme = mode)
         }
     }
 

@@ -41,7 +41,6 @@ import passwords.composeapp.generated.resources.save
 @Composable
 fun DetailScreen(
     password_id: String,
-    snackbarHostState: SnackbarHostState,
     onBackHandler: () -> Unit
 ) {
 
@@ -51,6 +50,8 @@ fun DetailScreen(
                 parametersOf(password_id)
             }
         )
+
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val scope = rememberCoroutineScope()
 

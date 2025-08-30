@@ -79,7 +79,6 @@ fun NavigationApplication(
                         val password_id = Json.decodeFromString<String>(jsonId)
                         DetailScreen(
                             password_id = password_id,
-                            snackbarHostState = snackbarHostState,
                             onBackHandler = {
                                 navController.popBackStack()
                             }

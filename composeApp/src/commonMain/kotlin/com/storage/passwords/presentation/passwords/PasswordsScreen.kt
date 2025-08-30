@@ -46,8 +46,6 @@ fun PasswordsScreen(
 
     val localLifecycleOwner = LocalLifecycleOwner.current
 
-    var errorMessage by remember { mutableStateOf("") }
-
     val scope = rememberCoroutineScope()
 
     val effect = viewModel.effect
@@ -56,15 +54,16 @@ fun PasswordsScreen(
             Lifecycle.State.STARTED
         )
 
-    LaunchedEffect(key1 = localLifecycleOwner) {
+    LaunchedEffect(key1 = localLifecycleOwner.lifecycle) {
         effect.collect {
             when (it) {
                 is PasswordsEffect.LoadError -> {
-                    errorMessage = it.message.asStringForSuspend()
+                    scope.launch {
+                        snackbarHostState.showSnackbar(it.message.asStringForSuspend())
+                    }
                 }
 
                 PasswordsEffect.LoadSuccess -> {
-                    errorMessage = ""
                     scope.launch {
                         snackbarHostState.showSnackbar("Loading items was successful")
                     }
@@ -74,12 +73,6 @@ fun PasswordsScreen(
                     currentItem.invoke(it.itemId)
                 }
             }
-        }
-    }
-
-    if (errorMessage.isNotEmpty()) {
-        scope.launch(DispatchersRepository.main()) {
-            snackbarHostState.showSnackbar(errorMessage)
         }
     }
 
@@ -132,7 +125,7 @@ fun PasswordsScreen(
 
                 state.passwordItems.isEmpty() -> {
                     ErrorMessageScreen(
-                        UiText.StaticString("No Data"),
+                        error = UiText.StaticString("No Data"),
                         onRetry = {
                             viewModel.handleEvent(PasswordsEvent.LoadPasswords)
                         })
@@ -141,7 +134,7 @@ fun PasswordsScreen(
                 else -> {
                     PasswordsListScreen(
                         state.passwordItems,
-                        {
+                        onClickDetail = {
                             viewModel.handleEvent(PasswordsEvent.NavigateToDetail(it.id))
                             println(it)
                         }

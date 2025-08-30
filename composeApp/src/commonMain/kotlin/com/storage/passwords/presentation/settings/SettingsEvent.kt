@@ -1,6 +1,8 @@
 package com.storage.passwords.presentation.settings
 
-sealed interface SettingsEvent {
+import com.storage.passwords.utils.ViewEvent
+
+sealed interface SettingsEvent : ViewEvent {
     data class Theme(val currentThene: String) : SettingsEvent
     data object NavigationBack: SettingsEvent
 }

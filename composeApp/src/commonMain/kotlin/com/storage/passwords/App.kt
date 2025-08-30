@@ -16,7 +16,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun App() {
 
     val settingViewModel = koinViewModel<SettingsViewModel>()
-    val currentTheme by settingViewModel.state.collectAsStateWithLifecycle()
+    val currentTheme by settingViewModel.viewState.collectAsStateWithLifecycle()
     PasswordsTheme(currentTheme.currentTheme) {
         NavigationApplication(settingViewModel)
     }
