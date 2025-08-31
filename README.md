@@ -21,6 +21,9 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
 
 
+<img src="screenshots/screenshot1.png" alt="android">
+
+
 Netty server setup:
 
 const val BASE_URL = "http://192.168.1.40:8080"
