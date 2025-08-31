@@ -63,10 +63,10 @@ fun SettingsScreen(
     }
 
 
-    BackHandler(enabled = true) {
-        println("BackHandler")
-        viewModel.handleEvents(SettingsEvent.NavigationBack)
-    }
+//    BackHandler(enabled = true) {
+//        println("BackHandler")
+//        viewModel.handleEvents(SettingsEvent.NavigationBack)
+//    }
 
     Scaffold(
         snackbarHost = {

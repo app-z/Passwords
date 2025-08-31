@@ -21,10 +21,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun AboutScreen(onStartClick: () -> Unit) {
 
-    BackHandler(enabled = true) {
-        println("BackHandler")
-        onStartClick.invoke()
-    }
+//    BackHandler(enabled = true) {
+//        println("BackHandler")
+//        onStartClick.invoke()
+//    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),

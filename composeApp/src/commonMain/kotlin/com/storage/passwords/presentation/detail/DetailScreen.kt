@@ -112,10 +112,10 @@ fun DetailScreen(
         }
     }
 
-    BackHandler(enabled = true) {
-        println("BackHandler")
-        viewModel.setEvent(DetailEvent.NavigationBack)
-    }
+//    BackHandler(enabled = true) {
+//        println("BackHandler")
+//        viewModel.setEvent(DetailEvent.NavigationBack)
+//    }
 
     Scaffold(
         snackbarHost = {
